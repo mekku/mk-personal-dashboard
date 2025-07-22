@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- numeral-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Monofett&family=Monomaniac+One&family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
+
+    <style>
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+            }
+        }
+
+        .monomaniac-one-regular {
+            font-family: "Monomaniac One", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+            color: #DDD;
+        }
+
+        .monofett {
+            font-family: "Monofett", monospace;
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        .orbitron {
+            font-family: "Orbitron", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 500;
+            font-style: normal;
+        }
+
+        body {
+            background-color: #111;
+            color: #DDD;
+            font-family: "Orbitron", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 500;
+            letter-spacing: 0.2rcap;
+        }
+
+        .task {
+            margin-bottom: 20px;
+        }
+
+        .task-label {
+            font-size: 20px;
+        }
+
+        .task-days-left {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .task-days-left div {
+            width: 10px;
+            height: 6px;
+            background-color: red;
+            margin: 1px;
+        }
+
+        .stocks {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 10px;
+        }
+
+        .stock {
+            display: block;
+            padding: 4px;
+            text-align: center;
+            font-size: 18px;
+            border-radius: 10px;
+            box-shadow: 4px 4px 1px #303030;
+            background: linear-gradient(0deg, #101010, #181818);
+        }
+
+        .stock .symbol {
+            font-size: 1em;
+            font-weight: bold;
+        }
+
+        .stock .current-price {
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .update-time {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .wrapper {
+            /* 60%-40% Grid Layout */
+            display: grid;
+            grid-template-columns: 80% 20%;
+            gap: 10px;
+        }
+
+        .portfolios {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 5px;
+            font-size: 0.9em;
+        }
+
+        @media screen and (max-width: 600px) {
+            .wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .portfolios {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .portfolio-aum {
+            text-align: right;
+            font-size: 1.8em;
+            font-weight: bold;
+            color: lightgray;
+        }
+
+        .orders-list {
+            display: flex;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 4px;
+            min-height: 35px;
+        }
+
+        .orders-list .buy-orders,
+        .orders-list .sell-orders {
+            text-transform: uppercase;
+            text-align: center;
+            flex: 1;
+            padding: 4px;
+        }
+
+        .orders-list .order-type {
+            font-size: 0.3em;
+            font-weight: bold;
+        }
+
+        .orders-list .price {
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .portfolio {
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+            box-shadow: 4px 4px 1px #303030;
+            background: linear-gradient(0deg, #101010, #181818);
+            position: relative;
+        }
+
+        .portfolio.port-BTCUSDT::after,
+        .portfolio.port-ETHUSDT::after {
+            content: '';
+            display: block;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: black;
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 20px;
+            height: 20px;
+            background-size: cover;
+        }
+
+        .portfolio.port-BTCUSDT::after {
+            /* https://s2.coinmarketcap.com/static/img/coins/64x64/1.png */
+            background-image: url('https://s2.coinmarketcap.com/static/img/coins/64x64/1.png');
+        }
+
+        .portfolio.port-ETHUSDT::after {
+            /* https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png */
+            background-image: url('https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png');
+        }
+
+        .portfolio .buy-orders {
+            background-color: green;
+            color: white;
+        }
+
+        .portfolio .sell-orders {
+            background-color: red;
+            color: white;
+        }
+
+        .portfolio .price {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .portfolio .info {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .portfolio .name {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #868686;
+            padding-left: 20px;
+        }
+
+        .portfolio .ping-time {
+            position: absolute;
+            bottom: 0;
+            left: 10px;
+            font-size: 0.6em;
+            color: lightgray;
+        }
+
+        .portfolio .ping-status {
+            position: absolute;
+            font-size: 0.5em;
+            top: 14px;
+            left: 6px;
+            height: 15px;
+            width: 15px;
+            border-radius: 50%;
+            background: none;
+            border: 0;
+        }
+
+        .portfolio .ping-status.active {
+            background: rgb(33, 199, 0);
+            border: 2px solid green;
+            animation: none;
+        }
+
+        .portfolio .ping-status.inactive {
+            background: red;
+            border: 2px solid rgb(96, 0, 0);
+            animation: fadeInOut 0.5s infinite;
+        }
+
+        .portfolio .upnl {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .portfolio .balance {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .portfolio .position {
+            font-size: 0.8em;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .portfolio .position .active-position {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: lightgray;
+            text-align: right;
+        }
+
+        .p-long {
+            color: rgb(142, 232, 57);
+        }
+
+        .p-short {
+            color: rgb(255, 67, 67);
+        }
+
+        .realtime-price {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 10px;
+            gap: 0px;
+        }
+
+        @media screen and (max-width: 600px) {
+            .realtime-price {
+                flex-direction: column;
+            }
+
+            .realtime-price .display-price {
+                width: 100%;
+            }
+        }
+
+        .price {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .current-prices {
+            display: flex;
+            width: 100%;
+            gap: 5px;
+        }
+
+        .display-price {
+            flex: 1;
+            padding: 10px 5px;
+            font-size: 2.6em;
+            border-radius: 20px;
+            text-align: center;
+            position: relative;
+            margin: 0 5px;
+            box-shadow: 4px 4px 1px #303030;
+            background: linear-gradient(0deg, #101010, #181818);
+            padding-top: 30px;
+            min-width: fit-content;
+        }
+
+        .display-price .symbol,
+        .display-price .price-vosc {
+            color: #DDD;
+            font-size: 0.3em;
+            font-weight: bold;
+            position: absolute;
+            top: 4px;
+            /* width: 100%; */
+            text-align: left;
+            left: 10px;
+        }
+
+        .display-price .price-vosc {
+            text-align: right;
+            right: 15px;
+        }
+
+        .display-price .price-number {
+            text-align: right;
+        }
+
+        .display-price .price-number .digit {
+            /* Style like vintage flip digits */
+            display: inline-block;
+            width: calc(12.5% - 4px);
+            height: 1.4em;
+            line-height: 1.6em;
+            text-align: center;
+            font-size: 1em;
+            font-weight: bold;
+            border-radius: 5px;
+            margin: 0 2px;
+            background: linear-gradient(0deg, #333, #111);
+            /* animation: fadeIn 0.5s; */
+        }
+
+        .display-price .price-number .digit.comma {
+            width: 0.4em;
+            background: linear-gradient(0deg, #333, #111);
+        }
+
+        .display-price .price-number .digit.dot {
+            width: 0.4em;
+            background: linear-gradient(0deg, #333, #111);
+        }
+
+        .date {
+            font-size: 1.4em;
+            font-weight: bold;
+            width: 100%;
+            text-align: right;
+            margin-bottom: 10px;
+        }
+
+        .progress {
+            height: 5px;
+            background-color: red;
+            margin-top: 5px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: green;
+            font-size: 0;
+            content: '';
+        }
+
+        .charts {
+            display: flex;
+            gap: 10px;
+            /* margin-top: 20px; */
+            flex-direction: column;
+        }
+
+        .chart {
+            flex: 1;
+        }
+
+        .chart-body {
+            height: 400px;
+            background-color: #222;
+        }
+    </style>
+
+    <script>
+        // JavaScript to reload the page every 60 seconds (1 minute)
+        setTimeout(function () {
+            window.location.reload();
+        }, 600000); // 300000 milliseconds = 5 minutes
+    </script>
+</head>
+
+<body>
+    <div class="date"></div>
+
+    <div class="realtime-price">
+        <div class="display-price" id="btc-price">
+            <div class="symbol">BTC</div>
+            <div class="price-vosc"></div>
+            <div class="price-number"></div>
+        </div>
+
+        <div class="display-price" id="eth-price">
+            <div class="symbol">ETH</div>
+            <div class="price-vosc"></div>
+            <div class="price-number"></div>
+        </div>
+
+        <div class="display-price" id="sol-price">
+            <div class="symbol">SOL</div>
+            <div class="price-vosc"></div>
+            <div class="price-number"></div>
+        </div>
+
+        <div class="display-price" id="doge-price">
+            <div class="symbol">DOGE</div>
+            <div class="price-vosc"></div>
+            <div class="price-number"></div>
+        </div>
+
+        <div class="display-price" id="upnl">
+            <div class="symbol">Unrealize PnL</div>
+            <div class="price-number"></div>
+        </div>
+
+        <div class="display-price" id="aum">
+            <div class="symbol">AUM</div>
+            <div class="price-number"></div>
+        </div>
+    </div>
+
+    <div class="wrapper">
+        <div>
+            <div class="portfolios">
+                {% for f in futures %}
+                <div class="portfolio port-{{futures[f]['symbol']}}" data-symbol="{{futures[f]['symbol']}}" data-balance="{{futures[f]['initial']}}" data-name="{{futures[f]['name']}}" data-ping="{{futures[f]['ping_time']}}">
+                    <div class="info">
+                        <div class="ping-status" data-time="{{futures[f]['ping_time']}}"></div>
+                        <div class="name">{{ f }}</div>
+                        <!-- <div class="pnl">{{futures[f]['pnl']}}</div> -->
+                        <div class="balance">$ {{'{:,.0f}'.format(futures[f]['balance'])}} ({{'{:,.0f}'.format(futures[f]['initial'])}})</div>
+                    </div>
+
+                    <div class="ping-time" data-time="{{futures[f]['ping_time']}}"></div>
+
+                    <div class="progress">
+                        <!-- {% if futures[f]['buy_order'] and futures[f]['sell_order'] %} -->
+                        <!-- <div class="progress-bar" role="progressbar" data-buy-price="{{futures[f]['buy_order']['triggerPrice']}}" data-sell-price="{{futures[f]['sell_order']['triggerPrice']}}" data-symbol="{{futures[f]['symbol']}}"></div> -->
+                        <!-- {% endif %} -->
+                        {% if futures[f]['orders']|length > 1 %}
+                        <div class="progress-bar" role="progressbar" data-buy-price="{{futures[f]['orders'][0]['triggerPrice']}}" data-sell-price="{{futures[f]['orders'][-1]['triggerPrice']}}" data-symbol="{{futures[f]['symbol']}}"></div>
+                        {% endif %}
+                    </div>
+
+                    <div class="orders-list">
+                        <!-- <div class="buy-orders">
+                            {% for o in futures[f]['orders'] if o['side'] == 'buy' %}
+                            <div class="order-type">{{ o['type'] }}</div>
+                            <div class="price">{{ '{:,.0f}'.format(o['triggerPrice']) }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="sell-orders">
+                            {% for o in futures[f]['orders'] if o['side'] == 'sell' %}
+                            <div class="order-type">{{ o['type'] }}</div>
+                            <div class="price">{{ '{:,.0f}'.format(o['triggerPrice']) }}</div>
+                            {% endfor %}
+                        </div> -->
+
+                        {% for o in futures[f]['orders'] %}
+                        <div class="{{'buy-orders' if o['side'] == 'buy' else 'sell-orders'}}">
+                            <div class="order-type">{{ o['type'] }}</div>
+                            <div class="price">{{ '{:,.0f}'.format(o['triggerPrice']) if o['triggerPrice'] > 1 else '{:,.3f}'.format(o['triggerPrice']) }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="current-positions">
+                        {% for p in futures[f]['positions'] %}
+                        <div class="position p-{{p['side']}}">
+                            <span>{{'{:,.1f}'.format(p['contracts'] * p['entryPrice'] / futures[f]['balance'])}}x @ {{'{:,.0f}'.format(p['entryPrice'])}}</span>
+                            <span data-symbol="{{p['symbol']}}" data-side="{{p['side']}}" data-contracts="{{p['contracts']}}" data-entry-price="{{p['entryPrice']}}" data-balance="{{futures[f]['initial']}}" class="active-position"></span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div>
+                <div>
+                    <!-- <div>
+                        <iframe src="https://coin360.com/widget/map?utm_source=embed_map" width="100%" height="300" frameborder="0" scrolling="no"></iframe>
+                    </div> -->
+
+                    <div>
+                        <!-- <h1>Stock Dashboard</h1> -->
+                        {% for task in tasks %}
+                        <div class="task">
+                            <div class="task-label">{{ task.task[0] }} ({{ task.days_left }})</div>
+                            <div class="task-days-left">
+                                {% for _ in range(task.days_left) %}
+                                <div></div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                        <div class="stocks">
+                            {% for stock in stocks %}
+                            <div class="stock" style="color: {{ stock.bg_color }}; border-color: {{ stock.border_color }}; display: flex">
+                                <div class="symbol">{{ stock.ticker }}</div>
+                                <div class="current-price">{{ stock.current_price }}</div>
+                                <div class="current-price">{{ stock.change }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="update-time">Last Updated: {{ update_time }}</div>
+            </div>
+        </div>
+        <div class="charts">
+            <div class="chart">
+                <div class="chart-body">
+                    <!-- TradingView Widget BEGIN -->
+                    <div class="tradingview-widget-container">
+                        <div class="tradingview-widget-container__widget"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                            {
+                                "autosize": true,
+                                    "symbol": "BINANCE:BTCUSDT.P",
+                                        "interval": "240",
+                                            "timezone": "Asia/Bangkok",
+                                                "theme": "dark",
+                                                    "style": "1",
+                                                        "locale": "en",
+                                                            "hide_top_toolbar": true,
+                                                                "allow_symbol_change": false,
+                                                                    "save_image": false,
+                                                                        "calendar": false,
+                                                                            "studies": [
+                                                                                "STD;Volume%1Oscillator"
+                                                                            ],
+                                                                                "support_host": "https://www.tradingview.com"
+                            }
+                        </script>
+                    </div>
+                    <!-- TradingView Widget END -->
+                </div>
+            </div>
+            <div class="chart">
+                <div class="chart-body">
+                    <!-- TradingView Widget BEGIN -->
+                    <div class="tradingview-widget-container">
+                        <div class="tradingview-widget-container__widget"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                            {
+                                "autosize": true,
+                                    "symbol": "BINANCE:ETHUSDT.P",
+                                        "interval": "240",
+                                            "timezone": "Asia/Bangkok",
+                                                "theme": "dark",
+                                                    "style": "1",
+                                                        "locale": "en",
+                                                            "hide_top_toolbar": true,
+                                                                "allow_symbol_change": false,
+                                                                    "save_image": false,
+                                                                        "calendar": false,
+                                                                            "studies": [
+                                                                                "STD;Volume%1Oscillator"
+                                                                            ],
+                                                                                "support_host": "https://www.tradingview.com"
+                            }
+                        </script>
+                    </div>
+                    <!-- TradingView Widget END -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <script>
+        // Handle socket messages
+        let socket = io();
+        let lastPrice = {};
+        let lockedProfit = {}
+
+        socket.on('connect', function () {
+            console.log('Connected to the server');
+        });
+
+        socket.on('disconnect', function () {
+            console.log('Disconnected from the server');
+        });
+
+        function formatNumber(number) {
+            let aNumber = Math.abs(number);
+            if (aNumber < 1)
+                number = numeral(number).format(',0.000');
+            else if (aNumber < 100)
+                number = numeral(number).format(',0.00');
+            else if (aNumber < 500)
+                number = numeral(number).format(',0.0');
+            else
+                number = numeral(number).format(',0');
+            // Padding space to 8 digits
+            while (aNumber.length < 8) {
+                number = ' ' + number;
+            }
+
+            return number;
+        }
+
+        function timeAge(date) {
+            let now = new Date();
+            let diff = now - date;
+
+            // if (diff < 60000) {
+            //     return `${Math.floor(diff / 1000)}s ago`;
+            // }
+
+            // return `${Math.floor(diff / 1000 / 60)}m ${Math.floor(diff / 1000) % 60}s ago`;
+            return `${Math.floor(diff / 1000 / 60)}m`;
+        }
+
+        function numberToDigits(number) {
+            number = formatNumber(number);
+
+            return number.split('').map(function (digit) {
+                if (digit === ' ') {
+                    return '<span class="digit">&nbsp;</span>';
+                }
+
+                if (digit === '.') {
+                    return '<span class="digit dot">.</span>';
+                }
+
+                if (digit === ',') {
+                    return '<span class="digit comma">,</span>';
+                }
+
+                return '<span class="digit">' + digit + '</span>';
+            }).join('');
+        }
+
+        function updateDigits(element, number) {
+            let lastValue = element.data('last-value');
+            let digits = element.find('.digit');
+            let newDigits = formatNumber(number).split('');
+            element.data('last-value', number);
+
+            if (digits.length === 0) {
+                element.html(numberToDigits(number));
+            }
+            else {
+                digits.each(function (index) {
+                    let digit = $(this).text().trim();
+                    let newDigit = newDigits[index].trim();
+
+                    if (newDigit === ',') {
+                        $(this).addClass('comma');
+                    }
+                    else if (newDigit === '.') {
+                        $(this).addClass('dot');
+                    }
+                    else {
+                        $(this).removeClass('comma').removeClass('dot');
+                    }
+
+                    if (digit !== newDigit) {
+                        // $(this).fadeOut(50 + (Math.random() * 50), function () {
+                        if (newDigit === ' ' || newDigit === '') {
+                            $(this).html('&nbsp;');
+                        }
+                        else {
+                            $(this).text(newDigit);
+                        }
+                        // }).fadeIn(50);
+                    }
+                });
+            }
+
+            if (Math.floor(Number(lastValue)) > Math.floor(Number(number))) {
+                element.css('color', 'red');
+            }
+            else if (Math.floor(Number(lastValue)) < Math.floor(Number(number))) {
+                element.css('color', 'green');
+            }
+        }
+
+        socket.on('realtime_vosc', function (data) {
+            // console.log('Realtime VOSC:', data);
+            if (typeof data === 'string') {
+                data = JSON.parse(data);
+            }
+
+            let btcVosc = data['BTCUSDT'];
+            let ethVosc = data['ETHUSDT'];
+            let solVosc = data['SOLUSDT'];
+            let dogeVosc = data['DOGEUSDT'];
+
+            $('#btc-price .price-vosc').text(numeral(btcVosc).format('0,0.00') + "%");
+            $('#eth-price .price-vosc').text(numeral(ethVosc).format('0,0.00') + "%");
+            $('#sol-price .price-vosc').text(numeral(solVosc).format('0,0.00') + "%");
+            $('#doge-price .price-vosc').text(numeral(dogeVosc).format('0,0.00') + "%");
+        });
+
+        socket.on('ping', function (data) {
+            console.log('Ping:', data);
+            if (typeof data === 'string') {
+                data = JSON.parse(data);
+            }
+
+            $('.portfolio').each(function () {
+                let name = $(this).data('name');
+                if (name === data['name']) {
+                    $(this).find('.ping-status').data('time', data['ping_time']);
+                    $(this).find('.ping-time').data('time', data['ping_time']).text(timeAge(new Date(data['ping_time'])));
+                    $(this).find('.ping-status').addClass('active');
+                }
+            });
+        });
+
+
+        socket.on('bot_info_update', function (data) {
+            // Update portfolio
+            // {"current_price": 260.88827259, "symbol": "SOLUSDT", "name": "VAR-BOT-MK-S1-SOL", "balance": 11237.45418622, "initial": 10115.04304068, "upnl": 1122.41114554, "positions": [{"info": {"symbol": "SOLUSDT", "positionSide": "BOTH", "positionAmt": "12", "entryPrice": "247.74", "breakEvenPrice": "247.86387", "markPrice": "260.88053039", "unRealizedProfit": "157.68636468", "liquidationPrice": "0", "isolatedMargin": "0", "notional": "3130.56636468", "marginAsset": "USDT", "isolatedWallet": "0", "initialMargin": "62.61132729", "maintMargin": "15.65283182", "positionInitialMargin": "62.61132729", "openOrderInitialMargin": "0", "adl": "1", "bidNotional": "0", "askNotional": "0", "updateTime": "1732195082639"}, "id": null, "symbol": "SOL/USDT:USDT", "contracts": 12.0, "contractSize": 1.0, "unrealizedPnl": 157.68636468, "leverage": null, "liquidationPrice": null, "collateral": 2972.88, "notional": 3130.56636468, "markPrice": 260.88053039, "entryPrice": 247.74, "timestamp": 1732195082639, "initialMargin": 62.61132729, "initialMarginPercentage": 0.01999999, "maintenanceMargin": 15.6528318234, "maintenanceMarginPercentage": 0.005, "marginRatio": 0.0053, "datetime": "2024-11-21T13:18:02.639Z", "marginMode": "cross", "marginType": "cross", "side": "long", "hedged": false, "percentage": 251.84, "stopLossPrice": null, "takeProfitPrice": null}], "pnl": "158", "orders": [{"info": {"orderId": "81796216238", "symbol": "SOLUSDT", "status": "NEW", "clientOrderId": "x-xcKtGhcud87ce3e56a954b84570234", "price": "228.8900", "avgPrice": "0", "origQty": "12", "executedQty": "0", "cumQuote": "0.0000", "timeInForce": "GTC", "type": "STOP", "reduceOnly": true, "closePosition": false, "side": "SELL", "positionSide": "BOTH", "stopPrice": "229.3500", "workingType": "CONTRACT_PRICE", "priceProtect": false, "origType": "STOP", "priceMatch": "NONE", "selfTradePreventionMode": "NONE", "goodTillDate": "0", "time": "1732369051458", "updateTime": "1732369051458"}, "id": "81796216238", "clientOrderId": "x-xcKtGhcud87ce3e56a954b84570234", "timestamp": 1732369051458, "datetime": "2024-11-23T13:37:31.458Z", "lastTradeTimestamp": null, "lastUpdateTimestamp": 1732369051458, "symbol": "SOL/USDT:USDT", "type": "stop", "timeInForce": "GTC", "postOnly": false, "reduceOnly": true, "side": "sell", "price": 228.89, "triggerPrice": 229.35, "amount": 12.0, "cost": 0.0, "average": null, "filled": 0.0, "remaining": 12.0, "status": "open", "fee": null, "trades": [], "fees": [], "stopPrice": 229.35, "takeProfitPrice": null, "stopLossPrice": null}, {"info": {"orderId": "81796216449", "symbol": "SOLUSDT", "status": "NEW", "clientOrderId": "x-xcKtGhcuc8130480dd2f248ac14485", "price": "0", "avgPrice": "0", "origQty": "12", "executedQty": "0", "cumQuote": "0.0000", "timeInForce": "GTC", "type": "TAKE_PROFIT_MARKET", "reduceOnly": true, "closePosition": false, "side": "SELL", "positionSide": "BOTH", "stopPrice": "743.2200", "workingType": "CONTRACT_PRICE", "priceProtect": false, "origType": "TAKE_PROFIT_MARKET", "priceMatch": "NONE", "selfTradePreventionMode": "NONE", "goodTillDate": "0", "time": "1732369051658", "updateTime": "1732369051658"}, "id": "81796216449", "clientOrderId": "x-xcKtGhcuc8130480dd2f248ac14485", "timestamp": 1732369051658, "datetime": "2024-11-23T13:37:31.658Z", "lastTradeTimestamp": null, "lastUpdateTimestamp": 1732369051658, "symbol": "SOL/USDT:USDT", "type": "take_profit_market", "timeInForce": "GTC", "postOnly": false, "reduceOnly": true, "side": "sell", "price": null, "triggerPrice": 743.22, "amount": 12.0, "cost": 0.0, "average": null, "filled": 0.0, "remaining": 12.0, "status": "open", "fee": null, "trades": [], "fees": [], "stopPrice": 743.22, "takeProfitPrice": null, "stopLossPrice": null}], "sell_order": {"info": {"orderId": "81796216238", "symbol": "SOLUSDT", "status": "NEW", "clientOrderId": "x-xcKtGhcud87ce3e56a954b84570234", "price": "228.8900", "avgPrice": "0", "origQty": "12", "executedQty": "0", "cumQuote": "0.0000", "timeInForce": "GTC", "type": "STOP", "reduceOnly": true, "closePosition": false, "side": "SELL", "positionSide": "BOTH", "stopPrice": "229.3500", "workingType": "CONTRACT_PRICE", "priceProtect": false, "origType": "STOP", "priceMatch": "NONE", "selfTradePreventionMode": "NONE", "goodTillDate": "0", "time": "1732369051458", "updateTime": "1732369051458"}, "id": "81796216238", "clientOrderId": "x-xcKtGhcud87ce3e56a954b84570234", "timestamp": 1732369051458, "datetime": "2024-11-23T13:37:31.458Z", "lastTradeTimestamp": null, "lastUpdateTimestamp": 1732369051458, "symbol": "SOL/USDT:USDT", "type": "stop", "timeInForce": "GTC", "postOnly": false, "reduceOnly": true, "side": "sell", "price": 228.89, "triggerPrice": 229.35, "amount": 12.0, "cost": 0.0, "average": null, "filled": 0.0, "remaining": 12.0, "status": "open", "fee": null, "trades": [], "fees": [], "stopPrice": 229.35, "takeProfitPrice": null, "stopLossPrice": null}, "ping_time": "2024-11-23 21:20:33"}
+            data = JSON.parse(data);
+            console.log('Bot info update', data);
+            let name = data['name'];
+
+            $('.portfolio[data-name="' + name + '"]').each(function () {
+                try {
+                    let portfolio = $(this);
+                    let name = portfolio.data('name');
+                    let symbol = data['symbol'];
+                    let balance = data['balance'];
+                    let initial = data['initial'];
+                    let upnl = data['upnl'];
+                    let pnl = data['pnl'];
+                    let positions = data['positions'];
+                    let orders = data['orders'];
+                    let entryPrice = 0;
+                    let side = 0;
+                    let leverage = 0;
+                    let currentPrice = 0;
+                    let contracts = 0;
+
+                    portfolio.data('balance', initial);
+                    portfolio.find('.balance').text('$ ' + numeral(balance).format('0,0') + ' (' + numeral(initial).format('0,0') + ')');
+                    portfolio.find('.upnl').text('$ ' + numeral(upnl).format('0,0') + ' (' + numeral(pnl).format('0,0') + ')');
+
+                    // Progress bar calculation by current price and lower order price and upper order price
+                    if (orders.length >= 2) {
+                        let upperOrder = orders[0];
+                        let lowerOrder = orders[1];
+                        let currentPrice = lastPrice[symbol];
+                        let progress = (upperOrder['triggerPrice'] - currentPrice) / (upperOrder['triggerPrice'] - lowerOrder['triggerPrice']) * 100;
+                        portfolio.find('.progress-bar').css('width', progress + '%');
+                    }
+
+                    let positionHtml = '';
+                    for (let i = 0; i < positions.length; i++) {
+
+                        let position = positions[i];
+                        let symbol = position['symbol'].replace('/', '').replace(':USDT', '');
+                        side = position['side'];
+                        leverage = position['contracts'] * position['entryPrice'] / initial;
+                        currentPrice = position['markPrice'];
+                        contracts = position['contracts'];
+                        entryPrice = position['entryPrice'];
+
+                        console.log('Position:', positions[i]);
+
+                        let pnlPercent = (currentPrice / entryPrice) * 100 - 100;
+                        let pnl = pnlPercent * contracts * entryPrice / 100;
+                        let pnlBalancePercent = pnl / initial * 100;
+
+                        if (side === 'short') {
+                            pnl = -pnl;
+                            pnlBalancePercent = -pnlBalancePercent;
+                            pnlPercent = -pnlPercent;
+                        }
+
+                        positionHtml += `<div class="position p-${side}">${numeral(leverage).format('0.0')}x @ ${formatNumber(entryPrice)} <span data-symbol="${symbol}" data-side="${side}" data-contracts="${contracts}" data-entry-price="${entryPrice}" data-balance="${balance}" class="active-position">${numeral(pnl).format('0, 0.0')} (${numeral(pnlPercent).format('0, 0.0')}/${numeral(pnlBalancePercent).format('0, 0.0')}%)</span></div>`;
+                    }
+                    console.log('Updating portfolio:', name);
+
+                    portfolio.find('.orders-list').html("");
+
+                    let ordersHtml = '';
+                    for (let i = 0; i < orders.length; i++) {
+                        let order = orders[i];
+                        let symbol = order['symbol'].replace('/', '').replace(':USDT', '');
+                        let side = order['side'];
+                        let price = order['triggerPrice'];
+                        let type = order['type'];
+
+                        ordersHtml += `<div class="${side}-orders" ><div class="order-type" > ${type} </div> <div class="price"> ${price} </div> </div > `;
+                    }
+
+                    portfolio.find('.orders-list').html(ordersHtml);
+
+                    // Calculate locked value by SL
+                    let slPrice = orders[0]['triggerPrice'];
+                    if (orders[0]['side'] === 'buy') {
+                        slPrice = orders[1]['triggerPrice'];
+                    }
+
+                    let lockedPnl = (slPrice - entryPrice) * contracts;
+                    if (side === 'short') {
+                        lockedPnl = -lockedPnl;
+                    }
+
+                    positionHtml += `<div style="text-align: right; font-size:0.9em; color: yellow">Locked: $${numeral(lockedPnl).format('0,0.0')}</div>`;
+                    portfolio.find('.current-positions').html(positionHtml);
+
+
+                    lockedProfit[name] = lockedPnl;
+                } catch (e) {
+                    console.error('Error:', e);
+                }
+
+            });
+        })
+
+
+        socket.on('bot_update', function () {
+            console.log('Bot update');
+            // window.location.reload();
+        })
+
+        socket.on('realtime_price', function (data) {
+            // console.log('Realtime price:', data);
+            if (typeof data === 'string') {
+                data = JSON.parse(data);
+            }
+
+            let btcPrice = data['BTCUSDT'];
+            let ethPrice = data['ETHUSDT'];
+            let solPrice = data['SOLUSDT'];
+            let dogePrice = data['DOGEUSDT'];
+
+            // $('#btc-price .price-number').text(numeral(btcPrice).format('0,0.00'));
+            // $('#eth-price .price-number').text(numeral(ethPrice).format('0,0.00'));
+
+            // $('#btc-price .price-number').html(numberToDigits(btcPrice));
+            // $('#eth-price .price-number').html(numberToDigits(ethPrice));
+
+            // Check and replace the digit that changed to new one
+            updateDigits($('#btc-price .price-number'), btcPrice);
+            updateDigits($('#eth-price .price-number'), ethPrice);
+            updateDigits($('#sol-price .price-number'), solPrice);
+            updateDigits($('#doge-price .price-number'), dogePrice);
+
+            // Style color for price change
+            // if (lastPrice['BTCUSDT'] < btcPrice) {
+            //     $('#btc-price').css('color', 'green');
+            // } else if (lastPrice['BTCUSDT'] > btcPrice) {
+            //     $('#btc-price').css('color', 'red');
+            // }
+
+            // if (lastPrice['ETHUSDT'] < ethPrice) {
+            //     $('#eth-price').css('color', 'green');
+            // } else if (lastPrice['ETHUSDT'] > ethPrice) {
+            //     $('#eth-price').css('color', 'red');
+            // }
+
+            // Save last price
+            lastPrice = data;
+
+            $('.progress-bar').each(function () {
+                let symbol = $(this).data('symbol').replace('/', '').replace(':USDT', '');
+                let buyPrice = Number($(this).data('buy-price'));
+                let sellPrice = Number($(this).data('sell-price'));
+                let currentPrice = Number(data[symbol]);
+
+                // console.log(symbol, buyPrice, sellPrice, currentPrice);
+
+                let progress = (buyPrice - currentPrice) / (buyPrice - sellPrice) * 100;
+                $(this).css('width', progress + '%');
+            });
+
+            let sumPnl = 0;
+            $('.active-position').each(function () {
+                let symbol = $(this).data('symbol').replace('/', '').replace(':USDT', '').replace(':BTC', '');
+                let side = $(this).data('side');
+                let contracts = Number($(this).data('contracts'));
+                let entryPrice = Number($(this).data('entry-price'));
+                let currentPrice = Number(data[symbol]);
+                let balance = Number($(this).data('balance'));
+
+                // console.log(symbol, side, contracts, entryPrice, currentPrice, balance);
+
+                let pnlPercent = (currentPrice / entryPrice) * 100 - 100;
+                let pnl = pnlPercent * contracts * entryPrice / 100;
+                let pnlBalancePercent = pnl / balance * 100;
+
+                if (side === 'short') {
+                    pnl = -pnl;
+                    pnlBalancePercent = -pnlBalancePercent;
+                    pnlPercent = -pnlPercent;
+                }
+
+                sumPnl += pnl;
+
+                $(this).text(`${numeral(pnl).format('0,0.0')} (${numeral(pnlPercent).format('0,0.0')}/${numeral(pnlBalancePercent).format('0,0.0')}%)`);
+
+                // Update balance
+                // $(this).parent().parent().find('.balance').text('$ ' + numeral(balance + pnl).format('0,0') + ' (' + numeral(balance).format('0,0') + ')');
+            });
+
+            // $('#upnl .price-number').text(numeral(sumPnl).format('0,0'));
+            // $('#upnl .price-number').html(numberToDigits(sumPnl));
+            updateDigits($('#upnl .price-number'), sumPnl);
+
+            setInterval(function () {
+                $('.ping-status').removeClass('active');
+                $('.ping-status').removeClass('inactive');
+
+                $('.ping-status').each(function () {
+                    let pingTime = $(this).data('time');
+                    let time = new Date(pingTime);
+                    let now = new Date();
+                    let diff = now - time;
+                    if (diff < 1000 * 180) {
+                        $(this).addClass('active');
+                    }
+                    else {
+                        $(this).addClass('inactive');
+                    }
+                });
+
+                $('.ping-time').each(function () {
+                    let pingTime = $(this).data('time');
+                    let time = new Date(pingTime);
+                    let now = new Date();
+                    let diff = now - time;
+                    $(this).text(timeAge(time));
+                });
+            }, 10000);
+
+            aum = 0;
+            $('.portfolio').each(function () {
+                let symbol = $(this).data('symbol').replace('/', '').replace(':USDT', '');
+                let balance = Number($(this).data('balance'));
+                if (symbol.includes('BTC')) {
+                    aum += balance;
+                }
+            });
+
+            // $('#aum .price-number').html(numberToDigits(aum + sumPnl));
+            updateDigits($('#aum .price-number'), aum + sumPnl);
+
+            // $('.portfolio-aum').text('uPnL: $' + numeral(sumPnl / aum * 100).format('0,0.0') + '%');
+            let sumLockedProfit = Object.values(lockedProfit).reduce((a, b) => a + b, 0);
+            $('#upnl .symbol').text('UPnL ( ' + numeral(sumPnl / aum * 100).format('0,0.0') + '%  / LK: $ ' + numeral(sumLockedProfit).format('0,0.0') + ')');
+
+            $('.date').text(new Date().toLocaleString());
+        });
+
+        window.onerror = function () {
+            setTimeout(() => {
+                location.reload();
+            }, 5000); // Reload after 5 seconds
+            return true; // Suppress default error logging
+        };
+
+    </script>
+</body>
+
+</html>

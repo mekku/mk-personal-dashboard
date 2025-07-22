@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time VOSC Data</title>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.0/socket.io.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+
+    <script src="https://unpkg.com/preact@latest/dist/preact.umd.js"></script>
+    <script src="https://unpkg.com/preact@latest/hooks/dist/hooks.umd.js"></script>
+    <script src="https://unpkg.com/preact@latest/compat/dist/compat.umd.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Monofett&family=Monomaniac+One&family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static',filename='styles/style.css') }}">
+
+</head>
+
+<body>
+    <div class="wrapper">
+        <div>
+            <div id="app"></div>
+        </div>
+
+        <div class="charts">
+            <div class="chart">
+                <div class="chart-body">
+                    <div class="tradingview-widget-container">
+                        <div class="tradingview-widget-container__widget"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                            { "autosize": true, "symbol": "BINANCE:BTCUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div class="chart">
+                <div class="chart-body">
+                    <div class="tradingview-widget-container">
+                        <div class="tradingview-widget-container__widget"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                            { "autosize": true, "symbol": "BINANCE:ETHUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div class="chart">
+                <div class="chart-body">
+                    <div class="tradingview-widget-container">
+                        <div class="tradingview-widget-container__widget"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                            { "autosize": true, "symbol": "BINANCE:DOGEUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="charts">
+            <div class="chart">
+                <div class="chart-body">
+                    <div class="tradingview-widget-container">
+                        <div class="tradingview-widget-container__widget"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                            { "autosize": true, "symbol": "BINANCE:SOLUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div class="chart">
+                <div class="chart-body">
+                    <div class="tradingview-widget-container">
+                        <div class="tradingview-widget-container__widget"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                            { "autosize": true, "symbol": "BINANCE:AVAXUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
+                        </script>
+                    </div>
+                </div>
+            </div>
+            <div class="chart">
+                <div class="chart-body">
+                    <div class="tradingview-widget-container">
+                        <div class="tradingview-widget-container__widget"></div>
+                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                            { "autosize": true, "symbol": "BINANCE:XRPUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
+                        </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <script type="text/babel">
+            window.React = { createElement: preact.h }
+
+            const { h, render } = preact;
+            const { useState, useEffect } = preactHooks;
+
+            const formatValue = (price, round = false) => {
+                if (Math.abs(price) < 1.0) {
+                    return numeral(price).format('0.0000');
+                }
+                else if (Math.abs(price) < 10.0) {
+                    return numeral(price).format('0.00');
+                }
+                else if (Math.abs(price) < 100.0) {
+                    return numeral(price).format('0.0');
+                }
+                else {
+                    return numeral(price).format('0,0');
+                }
+            };
+
+            const renderDigits = (value, round = false) => {
+                let strValue = formatValue(value, round);
+                let digits = strValue.split('');
+                let result = [];
+
+                for (let i = 0; i < digits.length; i++) {
+                    if (digits[i] === '.') {
+                        result.push(<span class="digit dot">.</span>);
+                    }
+                    else if (digits[i] === ',') {
+                        result.push(<span class="digit comma">,</span>);
+                    }
+                    else {
+                        result.push(<span class="digit">{digits[i]}</span>);
+                    }
+                }
+
+                return result;
+            };
+
+            const Portfolio = ({ portfolio, currentPrices, pingTimes = null }) => {
+                return portfolio.positions && Object.keys(portfolio.positions).map((symbol) => {
+                    let portfolioData = portfolio.positions[symbol];
+                    // console.log(portfolioData);
+                    //     {
+                    //         "symbol": "DOGEUSDT",
+                    // "positions": [],
+                    // "pnl": "",
+                    // "orders": [
+                    // {
+                    //     "info": {
+                    //     "orderId": "60598731337",
+                    // "symbol": "DOGEUSDT",
+                    // "status": "NEW",
+                    // "clientOrderId": "x-xcKtGhcu3a6fb976cd7381ac47dd8c",
+                    // "price": "0.350570",
+                    // "avgPrice": "0",
+                    // "origQty": "166",
+                    // "executedQty": "0",
+                    // "cumQuote": "0.000000",
+                    // "timeInForce": "GTC",
+                    // "type": "STOP",
+                    // "reduceOnly": false,
+                    // "closePosition": false,
+                    // "side": "BUY",
+                    // "positionSide": "BOTH",
+                    // "stopPrice": "0.349870",
+                    // "workingType": "CONTRACT_PRICE",
+                    // "priceProtect": false,
+                    // "origType": "STOP",
+                    // "priceMatch": "NONE",
+                    // "selfTradePreventionMode": "EXPIRE_MAKER",
+                    // "goodTillDate": "0",
+                    // "time": "1734796807477",
+                    // "updateTime": "1734796807571"
+                    //             },
+                    // "id": "60598731337",
+                    // "clientOrderId": "x-xcKtGhcu3a6fb976cd7381ac47dd8c",
+                    // "timestamp": 1734796807477,
+                    // "datetime": "2024-12-21T16:00:07.477Z",
+                    // "lastTradeTimestamp": null,
+                    // "lastUpdateTimestamp": 1734796807571,
+                    // "symbol": "DOGE/USDT:USDT",
+                    // "type": "SL",
+                    // "timeInForce": "GTC",
+                    // "postOnly": false,
+                    // "reduceOnly": false,
+                    // "side": "buy",
+                    // "price": 0.35057,
+                    // "triggerPrice": 0.34987,
+                    // "amount": 166,
+                    // "cost": 0,
+                    // "average": null,
+                    // "filled": 0,
+                    // "remaining": 166,
+                    // "status": "open",
+                    // "fee": null,
+                    // "trades": [],
+                    // "fees": [],
+                    // "stopPrice": 0.34987,
+                    // "takeProfitPrice": null,
+                    // "stopLossPrice": null
+                    //         }
+                    // ],
+                    // "buy_order": {
+                    //     "info": {
+                    //     "orderId": "60598731337",
+                    // "symbol": "DOGEUSDT",
+                    // "status": "NEW",
+                    // "clientOrderId": "x-xcKtGhcu3a6fb976cd7381ac47dd8c",
+                    // "price": "0.350570",
+                    // "avgPrice": "0",
+                    // "origQty": "166",
+                    // "executedQty": "0",
+                    // "cumQuote": "0.000000",
+                    // "timeInForce": "GTC",
+                    // "type": "STOP",
+                    // "reduceOnly": false,
+                    // "closePosition": false,
+                    // "side": "BUY",
+                    // "positionSide": "BOTH",
+                    // "stopPrice": "0.349870",
+                    // "workingType": "CONTRACT_PRICE",
+                    // "priceProtect": false,
+                    // "origType": "STOP",
+                    // "priceMatch": "NONE",
+                    // "selfTradePreventionMode": "EXPIRE_MAKER",
+                    // "goodTillDate": "0",
+                    // "time": "1734796807477",
+                    // "updateTime": "1734796807571"
+                    //         },
+                    // "id": "60598731337",
+                    // "clientOrderId": "x-xcKtGhcu3a6fb976cd7381ac47dd8c",
+                    // "timestamp": 1734796807477,
+                    // "datetime": "2024-12-21T16:00:07.477Z",
+                    // "lastTradeTimestamp": null,
+                    // "lastUpdateTimestamp": 1734796807571,
+                    // "symbol": "DOGE/USDT:USDT",
+                    // "type": "SL",
+                    // "timeInForce": "GTC",
+                    // "postOnly": false,
+                    // "reduceOnly": false,
+                    // "side": "buy",
+                    // "price": 0.35057,
+                    // "triggerPrice": 0.34987,
+                    // "amount": 166,
+                    // "cost": 0,
+                    // "average": null,
+                    // "filled": 0,
+                    // "remaining": 166,
+                    // "status": "open",
+                    // "fee": null,
+                    // "trades": [],
+                    // "fees": [],
+                    // "stopPrice": 0.34987,
+                    // "takeProfitPrice": null,
+                    // "stopLossPrice": null
+                    //     },
+                    // "ping_time": "2024-12-21 23:04:19"
+                    // }
+                    let { positions, orders } = portfolioData;
+                    // let pingTime = portfolioData.ping_time ? new Date(portfolioData.ping_time) : null;
+                    let pingTime = pingTimes ? new Date(pingTimes[symbol]) : (portfolioData.ping_time ? new Date(portfolioData.ping_time) : null);
+                    let pingTimeStr = pingTime ? new Date(pingTime).toLocaleTimeString() : '';
+                    let timeSincePing = pingTime ? (Date.now() - pingTime) / 1000 : 0;
+                    let timeSincePingMinutes = Math.floor(timeSincePing / 60);
+                    let isActive = timeSincePingMinutes < 5;
+
+                    return <div class="portfolio">
+                        <div class="info">
+                            <div class="name">{portfolio.name.replace("VAR-BOT-", "")}</div>
+                            <div class="balance">{formatValue(portfolio.balance, true)}</div>
+                        </div>
+                        <div class="symbol-positions">
+                            <div class="symbol-position">
+                                <div class="info">
+                                    <div class="name">{symbol}</div>
+                                    <div class={`ping-status ${isActive ? 'active' : 'inactive'}`}></div>
+                                    <div class="ping-time">({timeSincePingMinutes}m)</div>
+                                </div>
+                                <div class="orders-list">
+                                    {orders && orders.map((order) => {
+                                        return <div class={`${order.side === 'buy' ? 'buy' : 'sell'}-orders`}>
+                                            <div class="order-type">{order.type}</div>
+                                            <div class="price">{formatValue(order.triggerPrice)}</div>
+                                        </div>;
+                                    })}
+                                </div>
+                                <div class="current-positions">
+                                    {positions && positions.map((position) => {
+                                        let contractSize = position.contracts;
+                                        let currentPrice = currentPrices[symbol] || 0;
+                                        let entryPrice = position.entryPrice;
+
+                                        if (symbol == "BTCUSD") {
+                                            contractSize = contractSize * 100 / entryPrice;
+                                        }
+
+                                        let allocationRatio = (contractSize * entryPrice) / portfolio.balance;
+                                        let pricePnlPercent = (currentPrice / entryPrice - 1) * 100;
+                                        let pnl = (currentPrice - entryPrice) * contractSize;
+                                        let pnlPercentage = (pnl / portfolio.balance) * 100;
+
+                                        if (position.side === 'short') {
+                                            pricePnlPercent = -pricePnlPercent;
+                                            pnl = -pnl;
+                                            pnlPercentage = -pnlPercentage;
+                                        }
+
+                                        portfolioData.upnl = pnl;
+
+                                        return <div class="p-position">
+                                            <div class={`p-${position.side}`}>{formatValue(allocationRatio)}x @ {formatValue(entryPrice)}</div>
+                                            <div class="active-position">
+                                                {formatValue(pnl, true)} ({formatValue(pnlPercentage, true)}/{formatValue(pricePnlPercent, true)}%)
+                                            </div>
+                                        </div>;
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                    </div>;
+                })
+
+            };
+
+            const RealTimeVosc = ({ socket }) => {
+                const [voscData, setVoscData] = useState({
+                    BTCUSDT: 0,
+                    ETHUSDT: 0,
+                    SOLUSDT: 0,
+                    DOGEUSDT: 0,
+                });
+
+                const [priceData, setPriceData] = useState({
+                    BTCUSDT: 0,
+                    ETHUSDT: 0,
+                    SOLUSDT: 0,
+                    DOGEUSDT: 0,
+                });
+
+                const [totalPnl, setTotalPnl] = useState(0);
+                const [aum, setAum] = useState(0);
+                const [portfolios, setPortfolios] = useState({});
+                const [pingTimes, setPingTimes] = useState({});
+                const [jenkinsStatus, setJenkinsStatus] = useState({});
+
+                useEffect(() => {
+                    const handleRealtimeVosc = (data) => {
+                        if (typeof data === 'string') {
+                            data = JSON.parse(data);
+                        }
+
+                        setVoscData(data);
+                    };
+
+                    socket.on('realtime_vosc', handleRealtimeVosc);
+
+                    const handleRealtimePrice = (data) => {
+                        if (typeof data === 'string') {
+                            data = JSON.parse(data);
+                        }
+
+                        setPriceData(data);
+                    };
+
+                    socket.on('realtime_price', handleRealtimePrice);
+
+                    const handlePositions = (data) => {
+                        // Update portfolio
+                        // console.log(data);
+                        data = JSON.parse(data);
+
+                        setPortfolios(portfolios => {
+                            // let updatedPortfolios = _.merge({}, portfolios[data.name] || {}, data);
+                            return { ...portfolios, [data.name]: data }
+                        });
+                    };
+
+                    socket.on('bot_info_update', handlePositions);
+
+                    socket.on('ping', function (data) {
+                        if (typeof data === 'string') {
+                            data = JSON.parse(data);
+                        }
+
+                        // Update ping time for each bot
+                        let { name, ping_time } = data;
+                        let names = name.split('-');
+                        let mainName = name;
+                        let symbol = names[names.length - 1];
+                        if (symbol !== 'BTC' && symbol !== 'ETH' && symbol !== 'SOL' && symbol !== 'DOGE' && symbol !== 'AVAX' && symbol !== 'XRP') {
+                            symbol = 'BTC';
+                        }
+                        else {
+                            mainName = names.slice(0, names.length - 1).join('-');
+                        }
+
+                        setPingTimes(pingTime => {
+                            _.set(pingTime, [mainName, symbol + "USD"], ping_time);
+                            _.set(pingTime, [mainName, symbol + "USDT"], ping_time);
+                            return { ...pingTime }
+                        });
+                    });
+
+                    return () => {
+                        socket.off('realtime_vosc', handleRealtimeVosc);
+                        socket.off('realtime_price', handleRealtimePrice);
+                        socket.off('bot_info_update', handlePositions);
+                        socket.off('ping');
+                    };
+                }, [socket,]);
+
+                useEffect(() => {
+                    let totalPnl = 0;
+                    let aum = 0;
+
+                    Object.keys(portfolios).forEach((key) => {
+                        aum += portfolios[key].initial;
+
+                        let symbols = Object.keys(portfolios[key].positions);
+                        symbols.forEach((symbol) => {
+                            let upnl = portfolios[key].positions[symbol].upnl;
+                            // console.log(upnl);
+                            if (isNaN(upnl)) {
+                                upnl = 0;
+                            }
+
+                            totalPnl += upnl;
+                        });
+                    });
+
+                    aum += totalPnl;
+
+                    setTotalPnl(totalPnl);
+                    setAum(aum);
+
+                }, [portfolios, priceData]);
+
+                useEffect(() => {
+                    updateJenkinsStatus();
+                    let interval = setInterval(() => {
+                        updateJenkinsStatus();
+                    }, 10000);
+
+                    return () => {
+                        clearInterval(interval);
+                    };
+                }, []);
+
+                const updateJenkinsStatus = async (status) => {
+                    //Fetch data from curl -u "nakara:1121756eb3f5e37e2a7be9006ef0ab19e1" https:/mkjk.ideractive.com/api/json
+                    const url = '/jenkins';
+                    const headers = {
+                        "Content-Type": "application/json"
+                    };
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        headers: headers
+                    });
+
+                    const data = await response.json();
+                    // {"_class":"hudson.model.Hudson","assignedLabels":[{"name":"built-in"},{"name":"master"}],"mode":"NORMAL","nodeDescription":"the Jenkins controller's built-in node","nodeName":"","numExecutors":4,"description":null,"jobs":[{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"BuildX-Server-DEV","url":"https://mkjk.ideractive.com/job/BuildX-Server-DEV/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"BuildX-Server-Lambda-DEV","url":"https://mkjk.ideractive.com/job/BuildX-Server-Lambda-DEV/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"BuildX-Studio-DEV","url":"https://mkjk.ideractive.com/job/BuildX-Studio-DEV/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"ipone-b2b (staging)","url":"https://mkjk.ideractive.com/job/ipone-b2b%20(staging)/","color":"blue"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"ipone-b2c (staging)","url":"https://mkjk.ideractive.com/job/ipone-b2c%20(staging)/","color":"blue"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"KCC-E-Memo-BuildX-Server","url":"https://mkjk.ideractive.com/job/KCC-E-Memo-BuildX-Server/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"KCC-E-Memo-BuildX-Studio","url":"https://mkjk.ideractive.com/job/KCC-E-Memo-BuildX-Studio/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"KCC-E-Memo-BuildX-Studio-UAT","url":"https://mkjk.ideractive.com/job/KCC-E-Memo-BuildX-Studio-UAT/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"MASCI-BuildX-Studio","url":"https://mkjk.ideractive.com/job/MASCI-BuildX-Studio/","color":"blue"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"MASCI-E-Memo-BuildX-Server","url":"https://mkjk.ideractive.com/job/MASCI-E-Memo-BuildX-Server/","color":"blue"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"mini-line-app-production","url":"https://mkjk.ideractive.com/job/mini-line-app-production/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"mini-line-app-staging","url":"https://mkjk.ideractive.com/job/mini-line-app-staging/","color":"blue"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"\ud83d\ude80 ipone-b2b (production)","url":"https://mkjk.ideractive.com/job/%F0%9F%9A%80%20ipone-b2b%20(production)/","color":"notbuilt"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"\ud83d\ude80 ipone-b2c (production)","url":"https://mkjk.ideractive.com/job/%F0%9F%9A%80%20ipone-b2c%20(production)/","color":"blue"}],"overallLoad":{},"primaryView":{"_class":"hudson.model.AllView","name":"all","url":"https://mkjk.ideractive.com/"},"quietingDown":false,"slaveAgentPort":50000,"unlabeledLoad":{},"useCrumbs":true,"useSecurity":true,"views":[{"_class":"hudson.model.AllView","name":"all","url":"https://mkjk.ideractive.com/"}]}
+
+                    setJenkinsStatus(data);
+                };
+
+                const renderRealtimePrice = (symbol) => {
+                    return (
+                        <div class="display-price" id={`${symbol}-price`}>
+                            <div class="symbol">{symbol}</div>
+                            <div class="price-vosc">{numeral(voscData[`${symbol}USDT`]).format('0,0.00')}%</div>
+                            <div class="price-number">{renderDigits(priceData[`${symbol}USDT`])}</div>
+                        </div>
+                    );
+                };
+
+                return <div>
+                    <div class="realtime-price">
+                        {renderRealtimePrice('BTC')}
+                        {renderRealtimePrice('ETH')}
+                        {renderRealtimePrice('SOL')}
+                        {renderRealtimePrice('DOGE')}
+                        {renderRealtimePrice('XRP')}
+
+                        <div class="display-price" id="upnl">
+                            <div class="symbol">Unrealize PnL</div>
+                            <div class="price-number">{renderDigits(totalPnl, true)}</div>
+                        </div>
+
+                        <div class="display-price" id="aum">
+                            <div class="symbol">AUM</div>
+                            <div class="price-number">{renderDigits(aum, true)}</div>
+                        </div>
+                    </div>
+
+                    <div class="portfolios">
+                        {Object.keys(portfolios).map((key) => {
+                            return <Portfolio portfolio={portfolios[key]} currentPrices={priceData} pingTimes={pingTimes[key]} />;
+                        })}
+                    </div>
+
+                    <div class="jenkins">
+                        <div class="jenkins-title">Jenkins Status</div>
+                        <div class="jenkins-jobs">
+                            {jenkinsStatus.jobs && jenkinsStatus.jobs.map((job) => {
+                                return <div class={`jenkins-job job-${job.color}`}>{job.name}</div>;
+                            })}
+                        </div>
+                    </div>
+                </div>;
+            };
+
+            const socket = io();
+            render(<RealTimeVosc socket={socket} />, document.getElementById('app'));
+        </script>
+</body>
+
+</html>

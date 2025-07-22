@@ -1,0 +1,187 @@
+import tkinter as tk
+import yfinance as yf
+import pandas as pd
+from datetime import datetime, timedelta
+import signal
+import sys
+import math
+import time
+
+# List of tasks and their corresponding dates (in 'YYYY-MM-DD' format)
+tasks_dates = [
+    ("KCC", '2024-06-30'),
+    ("MASCI", '2024-06-26'),
+    ("Life", '2044-12-25')
+]
+
+# Function to calculate days left until each date
+def calculate_days_left(dates):
+    today = datetime.today()
+    days_left_list = [(datetime.strptime(date, '%Y-%m-%d') - today).days for date in dates]
+    return days_left_list
+
+
+# Function to fetch stock data and calculate EMAs
+def fetch_stock_data(ticker):
+    try:
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=365)
+        
+        # Fetch daily stock data
+        df = yf.download(ticker, start=start_date, end=end_date)
+        
+        if df.empty:
+            raise ValueError(f"No data found for {ticker}")
+        
+        # Calculate EMAs
+        df['EMA12'] = df['Close'].ewm(span=12, adjust=True).mean()
+        df['EMA25'] = df['Close'].ewm(span=26, adjust=True).mean()
+        
+        return df
+    except Exception as e:
+        print(f"Failed to download data for {ticker}: {e}")
+        return None
+
+# Function to determine the background color based on EMAs
+def get_background_color(ema12, ema25):
+    return 'green' if ema12 > ema25 else 'red'
+
+
+# Function to determine the border color based on PnL
+def get_border_color(current_price, bought_price):
+    return 'blue' if current_price > bought_price else 'red'
+
+# List of stock tickers to display
+
+bought_prices = {
+    'RCL.BK': 20.83,
+     'PSL.BK': 8.91,
+     'TASCO.BK': 16.43,
+     'TTA.BK': 6.67,
+     'CBG.BK': 69.87,
+     'AUCT.BK': 9.62,
+     'CITY.BK': 2.28,
+     'NER.BK': 6.16,
+    # 'NNCL.BK': 1.93,
+     'SCGD.BK': 7.96,
+     'SICT.BK': 5.31,
+     'SPRC.BK': 8.46,
+     'SYNEX.BK': 11.82,
+     'TEGH.BK': 3.27,
+     'TPIPL.BK': 1.38,
+     'TNITY.BK':  4.5,
+     'WORK.BK': 9.32,
+     'BILI': 13.62,
+    #  'JD': 31.41,
+    #  'HELE': 108.98,
+     'GOOGL': 138.44,
+     'AAPL': None,
+     'BTC-USD': None,
+     '^SET.BK': None,
+}
+
+stock_tickers = list(bought_prices.keys())
+
+# Create Tkinter root window
+root = tk.Tk()
+
+root.state('normal')
+root.attributes("-fullscreen", True) # run fullscreen
+root.wm_attributes("-fullscreen", True) # run fullscreen
+root.wm_attributes("-topmost", True) # keep on top
+root.configure(bg='black')
+
+time.sleep(2)
+# root.state('iconic')
+
+# Create a frame for the stock list
+frame = tk.Frame(root, bg='black')
+frame.pack(fill=tk.BOTH, expand=True)
+
+# Define the number of columns for the grid
+columns = 8
+
+def update_dashboard():
+    days_left_list = calculate_days_left([date for task, date in tasks_dates])
+
+    for widget in frame.winfo_children():
+        widget.destroy()  # Clear existing widgets
+
+    top_frame = tk.Frame(frame, bg='black')
+    top_frame.pack(fill=tk.BOTH, expand=False)
+
+    screen_width = max(frame.winfo_width(), 980)
+    rect_width = 8  # 10px rectangle width + 1px gap
+    rect_height = 6  # 10px rectangle width + 1px gap
+    
+    for i, (task, date) in enumerate(tasks_dates):
+        days_left = days_left_list[i]
+        task_label = tk.Label(top_frame, text=f"{task} ({days_left:,.0f})", anchor='w', bg='black', fg='#FFF')
+        task_label.grid(row=i*2, column=0, padx=10, pady=5, sticky='w')
+        
+        max_rects_per_line = screen_width // rect_width
+        canvas = tk.Canvas(top_frame, height=min(2 + rect_height, math.ceil(days_left / max_rects_per_line) * rect_height), width=screen_width, bd=0, highlightthickness=0, bg='black')
+        for j in range(days_left):
+            x0 = (j % max_rects_per_line) * (rect_width + 3)
+            y0 = (j // max_rects_per_line) * (rect_height + 3)  # 12px line height
+            x1 = x0 + rect_width
+            y1 = y0 + rect_height
+            canvas.create_rectangle(x0, y0, x1, y1, fill="red", outline="")
+        canvas.grid(row=i*2+1, column=0, padx=10, pady=5, sticky='w', columnspan=2)
+    
+
+    #################################################
+
+    row = 0
+    col = 0
+
+    bt_frame = tk.Frame(frame, bg='black')
+    bt_frame.pack(fill=tk.BOTH, expand=True)
+
+    for ticker in stock_tickers:
+        df = fetch_stock_data(ticker)
+        if df is not None:
+            latest_data = df.iloc[-1]  # Get the latest row of data
+            bg_color = get_background_color(latest_data['EMA12'], latest_data['EMA25'])
+            current_price = latest_data['Close']
+            if ticker in bought_prices and bought_prices[ticker] is not None:
+                border_color = get_border_color(current_price, bought_prices[ticker])
+                label = tk.Label(bt_frame, text=f"{ticker}\n{((current_price - bought_prices[ticker]) / bought_prices[ticker] * 100):.2f}%\n{current_price:.2f}", bg=bg_color, font=('Helvetica', 12, "bold"), width=11, height=3, relief="solid", bd=3, fg='#fff',)
+            else:
+                label = tk.Label(bt_frame, text=f"{ticker}\n{current_price:.2f}", bg=bg_color, font=('Helvetica', 12, "bold"), width=10, height=3, relief="solid", bd=3, fg='#fff',)
+                border_color = "gray"
+            
+            # Create a label for the stock
+            label.config(highlightbackground=border_color, highlightcolor=border_color, highlightthickness=4)
+        else:
+            # Create a label indicating data fetch failure
+            label = tk.Label(bt_frame, text=f"{ticker}\nFailed", bg='gray', font=('Helvetica', 12), width=10, height=3)
+        
+        label.grid(row=row, column=col, padx=5, pady=5)
+        
+        col += 1
+        if col >= columns:
+            col = 0
+            row += 1
+    
+    # Add update date as text label
+    update_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    update_label = tk.Label(bt_frame, text=f"Last Updated: {update_time}", font=('Helvetica', 10), width=40, height=2, bg='black', fg='#fff',)
+    update_label.grid(row=row+1, column=0, columnspan=columns, pady=10)
+
+    # Schedule the next update after 24 hours (86400000 milliseconds)
+    root.after(1440000, update_dashboard)
+
+# Run the initial dashboard update
+update_dashboard()
+
+# Handle SIGINT (Ctrl+C) to gracefully close the application
+def signal_handler(sig, frame):
+    print("Exiting...")
+    root.destroy()
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
+
+# Run the Tkinter main loop
+root.mainloop()

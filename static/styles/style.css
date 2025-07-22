@@ -1,0 +1,586 @@
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+.monomaniac-one-regular {
+    font-family: "Monomaniac One", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    color: #DDD;
+}
+
+.monofett {
+    font-family: "Monofett", monospace;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.orbitron {
+    font-family: "Orbitron", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 500;
+    font-style: normal;
+}
+
+body {
+    background-color: #111;
+    color: #DDD;
+    font-family: "Orbitron", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 500;
+    letter-spacing: 0.2rcap;
+}
+
+.task {
+    margin-bottom: 20px;
+}
+
+.task-label {
+    font-size: 20px;
+}
+
+.task-days-left {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.task-days-left div {
+    width: 10px;
+    height: 6px;
+    background-color: red;
+    margin: 1px;
+}
+
+.stocks {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 10px;
+}
+
+.stock {
+    display: block;
+    padding: 4px;
+    text-align: center;
+    font-size: 18px;
+    border-radius: 10px;
+    box-shadow: 4px 4px 1px #303030;
+    background: linear-gradient(0deg, #101010, #181818);
+}
+
+.stock .symbol {
+    font-size: 1em;
+    font-weight: bold;
+}
+
+.stock .current-price {
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+.update-time {
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+.wrapper {
+    /* 60%-40% Grid Layout */
+    /* display: grid;
+    grid-template-columns: 80% 20%; */
+
+    gap: 10px;
+}
+
+.portfolios {
+    display: flex;
+    flex-wrap: wrap;
+
+    /* grid-template-columns: 1fr 1fr 1fr 1fr; */
+    gap: 5px;
+    font-size: 0.9em;
+}
+
+/* @media screen and (max-width: 600px) {
+            .wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .portfolios {
+                grid-template-columns: 1fr;
+            }
+        } */
+
+.portfolio-aum {
+    text-align: right;
+    font-size: 1.8em;
+    font-weight: bold;
+    color: lightgray;
+}
+
+.symbol-positions {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 5px;
+}
+
+.symbol-position {
+    position: relative;
+    width: calc((100vw / 5) - 25px);
+    /* flex-grow: 1; */
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+
+    padding: 5px;
+}
+
+.portfolio {
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 10px;
+    box-shadow: 4px 4px 1px #303030;
+    background: linear-gradient(0deg, #101010, #181818);
+    position: relative;
+    /* display: flex; */
+    font-size: 0.9em;
+    /* flex-wrap: wrap; */
+    /* gap: 4px; */
+    max-width: 100%;
+    padding: 2px;
+}
+
+
+.portfolio.port-BTCUSDT::after,
+.portfolio.port-ETHUSDT::after {
+    content: '';
+    display: block;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: black;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 20px;
+    height: 20px;
+    background-size: cover;
+}
+
+.portfolio.port-BTCUSDT::after {
+    /* https://s2.coinmarketcap.com/static/img/coins/64x64/1.png */
+    background-image: url('https://s2.coinmarketcap.com/static/img/coins/64x64/1.png');
+}
+
+.portfolio.port-ETHUSDT::after {
+    /* https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png */
+    background-image: url('https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png');
+}
+
+.portfolio .buy-orders {
+    /* background-color: green;
+            color: white; */
+    color: green;
+}
+
+.portfolio .sell-orders {
+    /* background-color: red;
+            color: white; */
+    color: red;
+}
+
+.portfolio .price {
+    font-size: 1em;
+    font-weight: bold;
+}
+
+.portfolio .info {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    gap: 5px;
+}
+
+.portfolio .name {
+    /* font-size: 1.1em; */
+    font-weight: bold;
+    color: #868686;
+    /* padding-left: 20px; */
+}
+
+.portfolio .p-position {
+    font-size: 0.8em;
+}
+
+.portfolio .ping-time {
+    position: absolute;
+    top: 2px;
+    right: 20px;
+    text-align: right;
+    font-size: 0.6em;
+    color: lightgray;
+}
+
+.portfolio .ping-status {
+    position: absolute;
+    font-size: 0.5em;
+    top: 2px;
+    right: 6px;
+    height: 10px;
+    width: 10px;
+    border-radius: 50%;
+    background: none;
+    border: 0;
+}
+
+.portfolio .ping-status.active {
+    background: rgb(33, 199, 0);
+    border: 2px solid green;
+    animation: none;
+}
+
+.portfolio .ping-status.inactive {
+    background: red;
+    border: 2px solid rgb(96, 0, 0);
+    animation: fadeInOut 0.5s infinite;
+}
+
+.portfolio .upnl {
+    font-size: 1.2em;
+    /* font-weight: bold; */
+}
+
+.portfolio .balance {
+    /* font-size: 1.1em; */
+    font-weight: bold;
+}
+
+.portfolio .position {
+    /* font-size: 0.9em; */
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+}
+
+.portfolio .position .active-position {
+    /* font-size: 1.2em; */
+    font-weight: bold;
+    color: lightgray;
+    text-align: right;
+}
+
+.p-long {
+    /* color: rgb(142, 232, 57); */
+    background-color: darkgreen;
+    color: white;
+}
+
+.p-short {
+    /* color: rgb(255, 67, 67); */
+    background-color: darkred;
+    color: white;
+}
+
+.locked {
+    font-size: 0.4em;
+    color: gray;
+}
+
+.orders-list {
+    /* display: flex; */
+    border-radius: 10px;
+    overflow: hidden;
+    /* margin-top: 4px; */
+    min-height: 30px;
+    font-size: 0.8em;
+}
+
+.orders-list .buy-orders,
+.orders-list .sell-orders {
+    text-transform: uppercase;
+    text-align: center;
+    flex: 1;
+    /* padding: 4px; */
+
+    display: flex;
+    gap: 4px;
+}
+
+.orders-list .order-type {
+    /* font-size: 0.6em; */
+    font-weight: bold;
+}
+
+.orders-list .price {
+    /* font-size: 0.7em; */
+    font-weight: bolder;
+    color: lightgray;
+}
+
+.realtime-price {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    justify-content: flex-start;
+    margin-bottom: 10px;
+    gap: 0px;
+}
+
+@media screen and (max-width: 600px) {
+    .realtime-price {
+        flex-direction: column;
+    }
+
+    .realtime-price .display-price {
+        width: 100%;
+    }
+}
+
+.price {
+    font-size: 1.8em;
+    font-weight: bold;
+}
+
+.current-prices {
+    display: flex;
+    width: 100%;
+    gap: 5px;
+}
+
+.display-price {
+    flex: 1;
+    padding: 10px 5px;
+    font-size: 2em;
+    border-radius: 20px;
+    text-align: center;
+    position: relative;
+    margin: 0 5px;
+    box-shadow: 4px 4px 1px #303030;
+    background: linear-gradient(0deg, #101010, #181818);
+    padding-top: 30px;
+    min-width: fit-content;
+}
+
+.display-price .symbol,
+.display-price .price-vosc {
+    color: #DDD;
+    font-size: 0.3em;
+    font-weight: bold;
+    position: absolute;
+    top: 4px;
+    /* width: 100%; */
+    text-align: left;
+    left: 10px;
+}
+
+.display-price .price-vosc {
+    text-align: right;
+    right: 15px;
+}
+
+.display-price .price-number {
+    text-align: right;
+}
+
+.display-price .price-number .digit {
+    /* Style like vintage flip digits */
+    display: inline-block;
+    width: calc(12.5% - 4px);
+    height: 1.4em;
+    line-height: 1.6em;
+    text-align: center;
+    font-size: 1em;
+    font-weight: bold;
+    border-radius: 5px;
+    margin: 0 2px;
+    background: linear-gradient(0deg, #333, #111);
+    /* animation: fadeIn 0.5s; */
+}
+
+.display-price .price-number .digit.comma {
+    width: 0.4em;
+    background: linear-gradient(0deg, #333, #111);
+}
+
+.display-price .price-number .digit.dot {
+    width: 0.4em;
+    background: linear-gradient(0deg, #333, #111);
+}
+
+.date {
+    font-size: 1.4em;
+    font-weight: bold;
+    width: 100%;
+    text-align: right;
+    margin-bottom: 10px;
+}
+
+.progress {
+    height: 1px;
+    background-color: red;
+    margin-top: 5px;
+}
+
+.progress-bar {
+    height: 100%;
+    background-color: green;
+    font-size: 0;
+    content: '';
+}
+
+.charts {
+    display: flex;
+    gap: 10px;
+    /* margin-top: 20px; */
+    /* flex-direction: column; */
+}
+
+@media screen and (max-width: 600px) {
+    .charts {
+        flex-direction: column;
+    }
+
+}
+
+.chart {
+    flex: 1;
+}
+
+.chart-body {
+    height: 300px;
+    background-color: #222;
+}
+
+.jenkins .jenkins-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #DDD;
+    text-align: center;
+}
+
+.jenkins .jenkins-jobs {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 5px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    position: relative;
+}
+
+.jenkins .jenkins-job {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 5px;
+    border-radius: 10px;
+    background: linear-gradient(0deg, #101010, #181818);
+    box-shadow: 4px 4px 1px #303030;
+    position: relative;
+    align-items: center;
+    font-size: 0.8em;
+    height: 30px;
+}
+
+.jenkins .jenkins-job::before {
+    width: 15px;
+    height: 15px;
+    border-radius: 10px;
+    display: block;
+    content: '';
+}
+
+.jenkins .jenkins-job.job-green::before {
+    background-color: green;
+}
+
+.jenkins .jenkins-job.job-red {
+    background: linear-gradient(0deg, #8B0000, #A52A2A);
+    color: white;
+}
+
+.jenkins .jenkins-job.job-red::before {
+    background-color: red;
+}
+
+.jenkins .jenkins-job.job-red_anime {
+    animation: fadeInOut 0.5s infinite;
+    background: linear-gradient(0deg, #8B0000, #A52A2A);
+    color: white;
+}
+
+.jenkins .jenkins-job.job-red_anime::before {
+    background-color: red;
+}
+
+.jenkins .jenkins-job.job-blue::before {
+    background-color: blue;
+}
+
+.jenkins .jenkins-job.job-blue_anime {
+    animation: fadeInOut 0.5s infinite;
+}
+
+.jenkins .jenkins-job.job-blue_anime::before {
+    background-color: blue;
+}
+
+.jenkins .jenkins-job.job-aborted_anime {
+    animation: fadeInOut 0.5s infinite;
+}
+
+.jenkins .jenkins-job.job-aborted::before {
+    background-color: rgb(232, 152, 54);
+}
+
+.jenkins .jenkins-job.job-aborted {
+    background: linear-gradient(0deg, #8B0000, #A52A2A);
+    color: white;
+}
+
+.jenkins .jenkins-job.job-aborted_anime {
+    animation: fadeInOut 0.5s infinite;
+    background: linear-gradient(0deg, #8B0000, #A52A2A);
+    color: white;
+}
+
+.jenkins .jenkins-job.job-aborted_anime::before {
+    background-color: rgb(232, 152, 54);
+}
+
+.jenkins .jenkins-job.job-yellow {
+    background: linear-gradient(0deg, #8B0000, #A52A2A);
+    color: white;
+}
+
+.jenkins .jenkins-job.job-yellow::before {
+    background-color: yellow;
+}
+
+.jenkins .jenkins-job.job-notbuilt {
+    background: linear-gradient(0deg, #8B0000, #A52A2A);
+    color: white;
+}
+
+.jenkins .jenkins-job.job-notbuilt::before {
+    background-color: gray;
+}
