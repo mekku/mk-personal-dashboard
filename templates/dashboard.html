@@ -16,13 +16,19 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Monofett&family=Monomaniac+One&family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Monofett&family=Monomaniac+One&family=Orbitron:wght@400..900&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static',filename='styles/style.css') }}">
 
 </head>
 
 <body>
     <div class="wrapper">
+        <div class="clock-container">
+            <div id="clock"></div>
+            <div id="homeassistant-status"></div>
+        </div>
         <div>
             <div id="app"></div>
         </div>
@@ -32,9 +38,10 @@
                 <div class="chart-body">
                     <div class="tradingview-widget-container">
                         <div class="tradingview-widget-container__widget"></div>
-                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-                            { "autosize": true, "symbol": "BINANCE:BTCUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
-                        </script>
+                        <script type="text/javascript"
+                            src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                                { "autosize": true, "symbol": "BINANCE:BTCUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
+                            </script>
                     </div>
                 </div>
             </div>
@@ -42,9 +49,10 @@
                 <div class="chart-body">
                     <div class="tradingview-widget-container">
                         <div class="tradingview-widget-container__widget"></div>
-                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-                            { "autosize": true, "symbol": "BINANCE:ETHUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
-                        </script>
+                        <script type="text/javascript"
+                            src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                                { "autosize": true, "symbol": "BINANCE:ETHUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
+                            </script>
                     </div>
                 </div>
             </div>
@@ -52,9 +60,10 @@
                 <div class="chart-body">
                     <div class="tradingview-widget-container">
                         <div class="tradingview-widget-container__widget"></div>
-                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-                            { "autosize": true, "symbol": "BINANCE:DOGEUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
-                        </script>
+                        <script type="text/javascript"
+                            src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                                { "autosize": true, "symbol": "BINANCE:DOGEUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
+                            </script>
                     </div>
                 </div>
             </div>
@@ -64,9 +73,10 @@
                 <div class="chart-body">
                     <div class="tradingview-widget-container">
                         <div class="tradingview-widget-container__widget"></div>
-                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-                            { "autosize": true, "symbol": "BINANCE:SOLUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
-                        </script>
+                        <script type="text/javascript"
+                            src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                                { "autosize": true, "symbol": "BINANCE:SOLUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
+                            </script>
                     </div>
                 </div>
             </div>
@@ -74,9 +84,10 @@
                 <div class="chart-body">
                     <div class="tradingview-widget-container">
                         <div class="tradingview-widget-container__widget"></div>
-                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-                            { "autosize": true, "symbol": "BINANCE:AVAXUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
-                        </script>
+                        <script type="text/javascript"
+                            src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                                { "autosize": true, "symbol": "BINANCE:AVAXUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
+                            </script>
                     </div>
                 </div>
             </div>
@@ -84,9 +95,10 @@
                 <div class="chart-body">
                     <div class="tradingview-widget-container">
                         <div class="tradingview-widget-container__widget"></div>
-                        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-                            { "autosize": true, "symbol": "BINANCE:XRPUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
-                        </script>
+                        <script type="text/javascript"
+                            src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                                { "autosize": true, "symbol": "BINANCE:XRPUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
+                            </script>
                     </div>
                 </div>
             </div>
@@ -132,6 +144,105 @@
                 }
 
                 return result;
+            };
+
+            const HomeAssistantStatus = ({ status }) => {
+                return (
+                    <div class={`homeassistant ${status.status === 'alert' ? 'alert' : status.status === 'error' ? 'error' : 'normal'}`}>
+                        <div class="homeassistant-title">HA Status</div>
+                        <div class="homeassistant-sensor">
+                            {status.error ? (
+                                <div class="sensor-error">{status.error}</div>
+                            ) : (
+                                <div class="sensor-info">
+                                    <div class="sensor-name">{status.friendly_name || 'DTU AC Daily Energy'}</div>
+                                    <div class={`sensor-value ${status.status === 'alert' ? 'alert' : 'normal'}`}>
+                                        {status.value !== undefined ? `${status.value} ${status.unit || 'kWh'}` : 'No data'}
+                                    </div>
+                                    <div class="sensor-status">
+                                        {status.status === 'alert' ? 'ALERT' : status.status === 'error' ? 'ERROR' : 'Normal'}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                );
+            };
+
+            const HomeAssistantApp = () => {
+                const [homeAssistantStatus, setHomeAssistantStatus] = useState({});
+
+                useEffect(() => {
+                    updateHomeAssistantStatus();
+                    let interval = setInterval(() => {
+                        updateHomeAssistantStatus();
+                    }, 10000);
+
+                    return () => {
+                        clearInterval(interval);
+                    };
+                }, []);
+
+                const updateHomeAssistantStatus = async () => {
+                    try {
+                        const url = '/homeassistant';
+                        const headers = {
+                            "Content-Type": "application/json"
+                        };
+                        const response = await fetch(url, {
+                            method: 'GET',
+                            headers: headers
+                        });
+
+                        const data = await response.json();
+                        setHomeAssistantStatus(data);
+                    } catch (error) {
+                        console.error('Failed to fetch Home Assistant status:', error);
+                        setHomeAssistantStatus({
+                            error: 'Failed to fetch data',
+                            status: 'error'
+                        });
+                    }
+                };
+
+                return <HomeAssistantStatus status={homeAssistantStatus} />;
+            };
+
+            const Clock = () => {
+                const [time, setTime] = useState(new Date());
+
+                useEffect(() => {
+                    const timer = setInterval(() => {
+                        setTime(new Date());
+                    }, 1000);
+
+                    return () => clearInterval(timer);
+                }, []);
+
+                const formatTime = (date) => {
+                    return date.toLocaleTimeString('en-US', {
+                        hour12: false,
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    });
+                };
+
+                const formatDate = (date) => {
+                    return date.toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                };
+
+                return (
+                    <div class="clock">
+                        <div class="clock-time">{formatTime(time)}</div>
+                        <div class="clock-date">{formatDate(time)}</div>
+                    </div>
+                );
             };
 
             const Portfolio = ({ portfolio, currentPrices, pingTimes = null }) => {
@@ -270,7 +381,7 @@
                         <div class="symbol-positions">
                             <div class="symbol-position">
                                 <div class="info">
-                                    <div class="name">{symbol}</div>
+                                    <div class="name">{symbol.replace("USDT", "-T").replace("USD", "")}</div>
                                     <div class={`ping-status ${isActive ? 'active' : 'inactive'}`}></div>
                                     <div class="ping-time">({timeSincePingMinutes}m)</div>
                                 </div>
@@ -456,7 +567,7 @@
                     });
 
                     const data = await response.json();
-                    // {"_class":"hudson.model.Hudson","assignedLabels":[{"name":"built-in"},{"name":"master"}],"mode":"NORMAL","nodeDescription":"the Jenkins controller's built-in node","nodeName":"","numExecutors":4,"description":null,"jobs":[{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"BuildX-Server-DEV","url":"https://mkjk.ideractive.com/job/BuildX-Server-DEV/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"BuildX-Server-Lambda-DEV","url":"https://mkjk.ideractive.com/job/BuildX-Server-Lambda-DEV/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"BuildX-Studio-DEV","url":"https://mkjk.ideractive.com/job/BuildX-Studio-DEV/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"ipone-b2b (staging)","url":"https://mkjk.ideractive.com/job/ipone-b2b%20(staging)/","color":"blue"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"ipone-b2c (staging)","url":"https://mkjk.ideractive.com/job/ipone-b2c%20(staging)/","color":"blue"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"KCC-E-Memo-BuildX-Server","url":"https://mkjk.ideractive.com/job/KCC-E-Memo-BuildX-Server/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"KCC-E-Memo-BuildX-Studio","url":"https://mkjk.ideractive.com/job/KCC-E-Memo-BuildX-Studio/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"KCC-E-Memo-BuildX-Studio-UAT","url":"https://mkjk.ideractive.com/job/KCC-E-Memo-BuildX-Studio-UAT/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"MASCI-BuildX-Studio","url":"https://mkjk.ideractive.com/job/MASCI-BuildX-Studio/","color":"blue"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"MASCI-E-Memo-BuildX-Server","url":"https://mkjk.ideractive.com/job/MASCI-E-Memo-BuildX-Server/","color":"blue"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"mini-line-app-production","url":"https://mkjk.ideractive.com/job/mini-line-app-production/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"mini-line-app-staging","url":"https://mkjk.ideractive.com/job/mini-line-app-staging/","color":"blue"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"\ud83d\ude80 ipone-b2b (production)","url":"https://mkjk.ideractive.com/job/%F0%9F%9A%80%20ipone-b2b%20(production)/","color":"notbuilt"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"\ud83d\ude80 ipone-b2c (production)","url":"https://mkjk.ideractive.com/job/%F0%9F%9A%80%20ipone-b2c%20(production)/","color":"blue"}],"overallLoad":{},"primaryView":{"_class":"hudson.model.AllView","name":"all","url":"https://mkjk.ideractive.com/"},"quietingDown":false,"slaveAgentPort":50000,"unlabeledLoad":{},"useCrumbs":true,"useSecurity":true,"views":[{"_class":"hudson.model.AllView","name":"all","url":"https://mkjk.ideractive.com/"}]}
+                    // {"_class":"hudson.model.Hudson","assignedLabels":[{"name":"built-in"},{"name":"master"}],"mode":"NORMAL","nodeDescription":"the Jenkins controller's built-in node","nodeName":"","numExecutors":4,"description":null,"jobs":[{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"BuildX-Server-DEV","url":"https://mkjk.ideractive.com/job/BuildX-Server-DEV/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"BuildX-Server-Lambda-DEV","url":"https://mkjk.ideractive.com/job/BuildX-Server-Lambda-DEV/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"BuildX-Studio-DEV","url":"https://mkjk.ideractive.com/job/BuildX-Studio-DEV/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"ipone-b2b (staging)","url":"https://mkjk.ideractive.com/job/ipone-b2b%20(staging)/","color":"blue"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"ipone-b2c (staging)","url":"https://mkjk.ideractive.com/job/ipone-b2c%20(staging)/","color":"blue"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"KCC-E-Memo-BuildX-Server","url":"https://mkjk.ideractive.com/job/KCC-E-Memo-BuildX-Server/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"KCC-E-Memo-BuildX-Studio","url":"https://mkjk.ideractive.com/job/KCC-E-Memo-BuildX-Studio/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"KCC-E-Memo-BuildX-Studio-UAT","url":"https://mkjk.ideractive.com/job/KCC-E-Memo-BuildX-Studio-UAT/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"MASCI-BuildX-Studio","url":"https://mkjk.ideractive.com/job/MASCI-BuildX-Studio/","color":"blue"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"MASCI-E-Memo-BuildX-Server","url":"https://mkjk.ideractive.com/job/MASCI-E-Memo-BuildX-Server/","color":"blue"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"mini-line-app-production","url":"https://mkjk.ideractive.com/job/mini-line-app-production/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"mini-line-app-staging","url":"https://mkjk.ideractive.com/job/mini-line-app-staging/","color":"blue"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"\ud83d\ude80 ipone-b2b (production)","url":"https://mkjk.ideractive.com/job/%F0%9F%9A%80%20ipone-b2b%20(production)/","color":"blue"}],"overallLoad":{},"primaryView":{"_class":"hudson.model.AllView","name":"all","url":"https://mkjk.ideractive.com/"},"quietingDown":false,"slaveAgentPort":50000,"unlabeledLoad":{},"useCrumbs":true,"useSecurity":true,"views":[{"_class":"hudson.model.AllView","name":"all","url":"https://mkjk.ideractive.com/"}]}
 
                     setJenkinsStatus(data);
                 };
@@ -509,6 +620,8 @@
 
             const socket = io();
             render(<RealTimeVosc socket={socket} />, document.getElementById('app'));
+            render(<Clock />, document.getElementById('clock'));
+            render(<HomeAssistantApp />, document.getElementById('homeassistant-status'));
         </script>
 </body>
 

@@ -51,6 +51,10 @@ body {
     letter-spacing: 0.2rcap;
 }
 
+#clock {
+    flex: 1;
+}
+
 .task {
     margin-bottom: 20px;
 }
@@ -201,6 +205,7 @@ body {
     color: green;
 }
 
+
 .portfolio .sell-orders {
     /* background-color: red;
             color: white; */
@@ -220,9 +225,9 @@ body {
 }
 
 .portfolio .name {
-    /* font-size: 1.1em; */
+    font-size: 1.5em;
     font-weight: bold;
-    color: #868686;
+    color: #d8d8d8;
     /* padding-left: 20px; */
 }
 
@@ -497,90 +502,245 @@ body {
     box-shadow: 4px 4px 1px #303030;
     position: relative;
     align-items: center;
-    font-size: 0.8em;
-    height: 30px;
+    font-size: 1.2em;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    overflow: hidden;
+    text-transform: uppercase;
+    /* height: 30px; */
 }
 
-.jenkins .jenkins-job::before {
-    width: 15px;
-    height: 15px;
-    border-radius: 10px;
-    display: block;
-    content: '';
+
+.jenkins .jenkins-job.job-green {
+    background: linear-gradient(135deg, #1B5E20, #2E7D32);
+    color: #ddffee;
+    border: 1px solid #4CAF50;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.2);
 }
 
 .jenkins .jenkins-job.job-green::before {
-    background-color: green;
+    background-color: #4CAF50;
 }
 
 .jenkins .jenkins-job.job-red {
-    background: linear-gradient(0deg, #8B0000, #A52A2A);
-    color: white;
+    background: linear-gradient(135deg, #B71C1C, #C62828);
+    color: #ffe4e4;
+    border: 1px solid #F44336;
+    box-shadow: 0 2px 8px rgba(244, 67, 54, 0.2);
 }
 
 .jenkins .jenkins-job.job-red::before {
-    background-color: red;
+    background-color: #F44336;
 }
 
 .jenkins .jenkins-job.job-red_anime {
     animation: fadeInOut 0.5s infinite;
-    background: linear-gradient(0deg, #8B0000, #A52A2A);
-    color: white;
+    background: linear-gradient(135deg, #B71C1C, #C62828);
+    color: #ffc1c1;
+    border: 1px solid #F44336;
+    box-shadow: 0 2px 8px rgba(244, 67, 54, 0.2);
 }
 
 .jenkins .jenkins-job.job-red_anime::before {
-    background-color: red;
+    background-color: #F44336;
+}
+
+.jenkins .jenkins-job.job-blue {
+    background: linear-gradient(135deg, #0D47A1, #1565C0);
+    color: #c2e4ff;
+    border: 1px solid #2196F3;
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
 }
 
 .jenkins .jenkins-job.job-blue::before {
-    background-color: blue;
+    background-color: #2196F3;
 }
 
 .jenkins .jenkins-job.job-blue_anime {
     animation: fadeInOut 0.5s infinite;
+    background: linear-gradient(135deg, #0D47A1, #1565C0);
+    color: #c2e4ff;
+    border: 1px solid #2196F3;
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
 }
 
 .jenkins .jenkins-job.job-blue_anime::before {
-    background-color: blue;
-}
-
-.jenkins .jenkins-job.job-aborted_anime {
-    animation: fadeInOut 0.5s infinite;
-}
-
-.jenkins .jenkins-job.job-aborted::before {
-    background-color: rgb(232, 152, 54);
+    background-color: #2196F3;
 }
 
 .jenkins .jenkins-job.job-aborted {
-    background: linear-gradient(0deg, #8B0000, #A52A2A);
-    color: white;
+    background: linear-gradient(135deg, #E65100, #F57C00);
+    color: #ffeed4;
+    border: 1px solid #FF9800;
+    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.2);
+}
+
+.jenkins .jenkins-job.job-aborted::before {
+    background-color: #FF9800;
 }
 
 .jenkins .jenkins-job.job-aborted_anime {
     animation: fadeInOut 0.5s infinite;
-    background: linear-gradient(0deg, #8B0000, #A52A2A);
-    color: white;
+    background: linear-gradient(135deg, #E65100, #F57C00);
+    color: #ffefd6;
+    border: 1px solid #FF9800;
+    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.2);
 }
 
 .jenkins .jenkins-job.job-aborted_anime::before {
-    background-color: rgb(232, 152, 54);
+    background-color: #FF9800;
 }
 
 .jenkins .jenkins-job.job-yellow {
-    background: linear-gradient(0deg, #8B0000, #A52A2A);
-    color: white;
+    background: linear-gradient(135deg, #F57F17, #FBC02D);
+    color: #fffad2;
+    border: 1px solid #FFC107;
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.2);
 }
 
 .jenkins .jenkins-job.job-yellow::before {
-    background-color: yellow;
+    background-color: #FFC107;
 }
 
 .jenkins .jenkins-job.job-notbuilt {
-    background: linear-gradient(0deg, #8B0000, #A52A2A);
-    color: white;
+    background: linear-gradient(135deg, #424242, #616161);
+    color: #ffd0d0;
+    border: 1px solid #9E9E9E;
+    box-shadow: 0 2px 8px rgba(158, 158, 158, 0.2);
 }
 
 .jenkins .jenkins-job.job-notbuilt::before {
-    background-color: gray;
+    background-color: #9E9E9E;
+}
+
+.clock-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.clock {
+    text-align: center;
+    padding: 15px 30px;
+    border-radius: 15px;
+    background: linear-gradient(0deg, #101010, #181818);
+    box-shadow: 4px 4px 1px #303030;
+    border: 2px solid #333;
+}
+
+.clock-time {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #DDD;
+    font-family: "Orbitron", sans-serif;
+    margin-bottom: 5px;
+}
+
+.clock-date {
+    font-size: 1em;
+    color: #868686;
+    font-family: "Orbitron", sans-serif;
+}
+
+/* Home Assistant Status Styles */
+.homeassistant {
+    margin-top: 10px;
+    padding: 8px;
+    border-radius: 8px;
+    background: linear-gradient(0deg, #101010, #181818);
+    box-shadow: 2px 2px 1px #303030;
+    border: 1px solid #333;
+    transition: all 0.3s ease;
+    max-width: 300px;
+}
+
+.homeassistant.alert {
+    border-color: #F44336;
+    box-shadow: 0 0 10px rgba(244, 67, 54, 0.3);
+    animation: fadeInOut 1s infinite;
+}
+
+.homeassistant.error {
+    border-color: #FF9800;
+    box-shadow: 0 0 10px rgba(255, 152, 0, 0.3);
+}
+
+.homeassistant.normal {
+    border-color: #4CAF50;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.2);
+}
+
+.homeassistant-title {
+    font-size: 0.9em;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #DDD;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.homeassistant-sensor {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.sensor-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    text-align: center;
+}
+
+.sensor-name {
+    font-size: 0.7em;
+    font-weight: bold;
+    color: #DDD;
+}
+
+.sensor-value {
+    font-size: 1.1em;
+    font-weight: bold;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.sensor-value.normal {
+    color: #4CAF50;
+    background: rgba(76, 175, 80, 0.1);
+    border: 1px solid #4CAF50;
+}
+
+.sensor-value.alert {
+    color: #F44336;
+    background: rgba(244, 67, 54, 0.1);
+    border: 1px solid #F44336;
+    animation: fadeInOut 0.5s infinite;
+}
+
+.sensor-status {
+    font-size: 0.6em;
+    color: #868686;
+    font-style: italic;
+}
+
+.sensor-error {
+    color: #F44336;
+    font-size: 0.8em;
+    text-align: center;
+    padding: 4px;
+    background: rgba(244, 67, 54, 0.1);
+    border-radius: 4px;
+    border: 1px solid #F44336;
+}
+
+.sensor-updated {
+    font-size: 0.6em;
+    color: #666;
+    font-style: italic;
+    margin-top: 2px;
 }

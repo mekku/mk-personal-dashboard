@@ -601,6 +601,54 @@ def jenkins():
     # Return as json
     return json.dumps(data)
 
+@app.route("/homeassistant")
+def homeassistant():
+    # Fetch Home Assistant data for sensor.dtu_ac_daily_energy
+    url = "https://ha.ideractive.com/api/states"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIxOTg4MDEwZGE3NjI0MTY2YmIwZDk1ZWVlMDlmZjg5YyIsImlhdCI6MTY5ODU2NzEzMSwiZXhwIjoyMDEzOTI3MTMxfQ.8SvCGhhXsZrJaEXXSBh9h8qIHwLPhh197npUVUReChE"
+    }
+    
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            print (data)
+            # Find the specific sensor in the list of entities
+            target_sensor = None
+            for entity in data:
+                if entity.get('entity_id') == 'sensor.dtu_ac_daily_energy':
+                    target_sensor = entity
+                    break
+            
+            if target_sensor:
+                # Extract the state value and convert to float
+                energy_value = float(target_sensor.get('state', 0))
+                return json.dumps({
+                    'sensor': 'sensor.dtu_ac_daily_energy',
+                    'value': energy_value,
+                    'unit': target_sensor.get('attributes', {}).get('unit_of_measurement', 'kWh'),
+                    'status': 'alert' if energy_value <= 0 else 'normal',
+                    'last_updated': target_sensor.get('last_changed', ''),
+                    'friendly_name': target_sensor.get('attributes', {}).get('friendly_name', 'DTU AC Daily Energy')
+                })
+            else:
+                return json.dumps({
+                    'error': 'Sensor sensor.dtu_ac_daily_energy not found',
+                    'status': 'error'
+                })
+        else:
+            return json.dumps({
+                'error': f'Failed to fetch data: HTTP {response.status_code}',
+                'status': 'error'
+            })
+    except Exception as e:
+        logger.error(f"Failed to fetch Home Assistant data: {e}")
+        return json.dumps({
+            'error': str(e),
+            'status': 'error'
+        })
     
 @app.route("/abt_status")
 def abt_status():
