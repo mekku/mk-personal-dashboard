@@ -369,7 +369,7 @@
             aum += totalPnl;
 
             return (
-                <>
+                <div class="dashboard-root">
                     <section class="panel top-layer">
                         <div class="top-left">
                             <ClockCompact />
@@ -392,7 +392,7 @@
                         <BotPanel portfolios={portfolios} pingTimes={pingTimes} currentPrices={priceData} />
                         <JenkinsPanel jobs={jenkinsStatus.jobs || []} />
                     </section>
-                </>
+                </div>
             );
         };
 
