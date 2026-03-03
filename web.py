@@ -534,7 +534,7 @@ def get_info(api_key, api_secret, symbols, name):
 
 @app.route("/")
 def dashboard():
-    global port_loading, futures
+    global port_loading, futures, ping_time
     days_left_list = calculate_days_left([date for task, date in tasks_dates])
     tasks = [{"task": task, "days_left": days_left} for task, days_left in zip(tasks_dates, days_left_list)]
 
@@ -588,7 +588,29 @@ def dashboard():
     #             "border_color": "gray"
     #         })
     
-    return render_template("dashboard.html", tasks=tasks, futures=futures, aum=aum, update_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    initial_ping_time = {}
+    for f in futures_keys:
+        name = futures_keys[f]["name"]
+        if name in ping_time and ping_time[name] is not None:
+            initial_ping_time[name] = ping_time[name].strftime("%Y-%m-%d %H:%M:%S")
+        else:
+            initial_ping_time[name] = None
+
+    for name in ping_time:
+        if name not in initial_ping_time:
+            if ping_time[name] is not None:
+                initial_ping_time[name] = ping_time[name].strftime("%Y-%m-%d %H:%M:%S")
+            else:
+                initial_ping_time[name] = None
+
+    return render_template(
+        "dashboard.html",
+        tasks=tasks,
+        futures=futures,
+        aum=aum,
+        initial_ping_time=initial_ping_time,
+        update_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+    )
     # return render_template("dashboard.html", tasks=tasks, stocks=stocks, futures=futures, aum=aum, update_time=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
 @app.route("/jenkins")

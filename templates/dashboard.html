@@ -23,57 +23,6 @@
 <body>
     <div class="wrapper">
         <div id="app"></div>
-
-        <section class="charts-layer">
-            <div class="chart-card">
-                <div class="tradingview-widget-container">
-                    <div class="tradingview-widget-container__widget"></div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-                        { "autosize": true, "symbol": "BINANCE:BTCUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
-                    </script>
-                </div>
-            </div>
-            <div class="chart-card">
-                <div class="tradingview-widget-container">
-                    <div class="tradingview-widget-container__widget"></div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-                        { "autosize": true, "symbol": "BINANCE:ETHUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
-                    </script>
-                </div>
-            </div>
-            <div class="chart-card">
-                <div class="tradingview-widget-container">
-                    <div class="tradingview-widget-container__widget"></div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-                        { "autosize": true, "symbol": "BINANCE:DOGEUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
-                    </script>
-                </div>
-            </div>
-            <div class="chart-card">
-                <div class="tradingview-widget-container">
-                    <div class="tradingview-widget-container__widget"></div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-                        { "autosize": true, "symbol": "BINANCE:SOLUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
-                    </script>
-                </div>
-            </div>
-            <div class="chart-card">
-                <div class="tradingview-widget-container">
-                    <div class="tradingview-widget-container__widget"></div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-                        { "autosize": true, "symbol": "BINANCE:AVAXUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
-                    </script>
-                </div>
-            </div>
-            <div class="chart-card">
-                <div class="tradingview-widget-container">
-                    <div class="tradingview-widget-container__widget"></div>
-                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-                        { "autosize": true, "symbol": "BINANCE:XRPUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
-                    </script>
-                </div>
-            </div>
-        </section>
     </div>
 
     <script type="text/babel">
@@ -84,6 +33,33 @@
 
         const TRACKED_SYMBOLS = ['BTC', 'ETH', 'SOL', 'DOGE', 'XRP'];
         const PING_ACTIVE_MINUTES = 5;
+        const initialFuturesRaw = {{ futures | tojson | safe }};
+        const initialPingByBot = {{ initial_ping_time | tojson | safe }};
+
+        const buildInitialPortfolios = () => {
+            const seeded = {};
+            Object.values(initialFuturesRaw || {}).forEach((botInfo) => {
+                if (botInfo && botInfo.name) {
+                    seeded[botInfo.name] = botInfo;
+                }
+            });
+            return seeded;
+        };
+
+        const buildInitialPingTimes = (seededPortfolios) => {
+            const seeded = {};
+            Object.keys(initialPingByBot || {}).forEach((botName) => {
+                const pingValue = initialPingByBot[botName];
+                const symbols = (seededPortfolios[botName] && seededPortfolios[botName].symbols) || ['BTCUSDT'];
+                symbols.forEach((symbol) => {
+                    _.set(seeded, [botName, symbol], pingValue);
+                });
+            });
+            return seeded;
+        };
+
+        const initialPortfolios = buildInitialPortfolios();
+        const initialPingTimes = buildInitialPingTimes(initialPortfolios);
 
         const isJenkinsRunning = (color = '') => color.endsWith('_anime');
         const isJenkinsNormal = (color = '') => color === 'blue';
@@ -319,8 +295,8 @@
         const Dashboard = ({ socket }) => {
             const [voscData, setVoscData] = useState({});
             const [priceData, setPriceData] = useState({});
-            const [portfolios, setPortfolios] = useState({});
-            const [pingTimes, setPingTimes] = useState({});
+            const [portfolios, setPortfolios] = useState(initialPortfolios);
+            const [pingTimes, setPingTimes] = useState(initialPingTimes);
             const [jenkinsStatus, setJenkinsStatus] = useState({ jobs: [] });
 
             useEffect(() => {

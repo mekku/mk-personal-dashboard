@@ -33,16 +33,14 @@ body {
     background: radial-gradient(circle at 15% 10%, #172534 0%, var(--bg) 55%);
     color: var(--text);
     font-family: "Orbitron", sans-serif;
-    font-size: 12px;
+    font-size: 14px;
     line-height: 1.3;
 }
 
 .wrapper {
     height: 100vh;
     padding: 8px;
-    display: grid;
-    grid-template-rows: 1fr auto;
-    gap: 8px;
+    display: block;
 }
 
 #app {
@@ -62,7 +60,7 @@ body {
 }
 
 .panel-title {
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     text-transform: uppercase;
     color: #a9bbc9;
     letter-spacing: 0.08em;
@@ -71,7 +69,7 @@ body {
 
 .panel-subtitle {
     color: var(--muted);
-    font-size: 0.65rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
     margin-bottom: 6px;
 }
@@ -90,13 +88,13 @@ body {
 }
 
 .clock-time {
-    font-size: 1.4rem;
+    font-size: 1.8rem;
     font-weight: 700;
     color: #f1f5f8;
 }
 
 .clock-date {
-    font-size: 0.75rem;
+    font-size: 0.9rem;
     color: var(--muted);
     text-transform: uppercase;
 }
@@ -116,12 +114,12 @@ body {
 
 .summary-label {
     color: var(--muted);
-    font-size: 0.6rem;
+    font-size: 0.72rem;
     text-transform: uppercase;
 }
 
 .summary-value {
-    font-size: 0.9rem;
+    font-size: 1.1rem;
     font-weight: 700;
 }
 
@@ -154,7 +152,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.62rem;
+    font-size: 0.74rem;
     color: #a8bac9;
 }
 
@@ -177,7 +175,7 @@ body {
     align-items: center;
     justify-content: center;
     min-width: 0.45em;
-    font-size: 0.72rem;
+    font-size: 0.9rem;
     margin-left: 1px;
     padding: 2px 1px;
     border-radius: 3px;
@@ -224,7 +222,7 @@ body {
     grid-template-columns: 1.5fr 0.7fr 0.8fr 1fr;
     gap: 6px;
     align-items: center;
-    font-size: 0.68rem;
+    font-size: 0.82rem;
 }
 
 .bot-row.running {
@@ -257,13 +255,13 @@ body {
 .bot-symbol {
     color: #a9bdcc;
     text-align: center;
-    font-size: 0.6rem;
+    font-size: 0.72rem;
     letter-spacing: 0.03em;
 }
 
 .bot-tag {
     margin-left: 6px;
-    font-size: 0.55rem;
+    font-size: 0.62rem;
     color: #baf2d8;
     border: 1px solid #2f7a59;
     border-radius: 999px;
@@ -272,7 +270,7 @@ body {
 }
 
 .bot-health {
-    font-size: 0.58rem;
+    font-size: 0.68rem;
     text-align: center;
     border-radius: 999px;
     padding: 2px 4px;
@@ -295,7 +293,7 @@ body {
     margin-top: 2px;
     display: flex;
     gap: 4px;
-    font-size: 0.52rem;
+    font-size: 0.62rem;
     color: #b0c1d0;
     white-space: nowrap;
     overflow: hidden;
@@ -325,7 +323,7 @@ body {
 
 .badge {
     border-radius: 999px;
-    font-size: 0.56rem;
+    font-size: 0.68rem;
     padding: 2px 6px;
     border: 1px solid transparent;
 }
@@ -346,7 +344,7 @@ body {
     border: 1px solid #273748;
     border-radius: 6px;
     padding: 4px 6px;
-    font-size: 0.65rem;
+    font-size: 0.78rem;
     text-transform: uppercase;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -368,32 +366,12 @@ body {
 
 .empty-state {
     color: var(--muted);
-    font-size: 0.68rem;
+    font-size: 0.8rem;
     text-transform: uppercase;
     border: 1px dashed #33495f;
     border-radius: 6px;
     padding: 8px;
     text-align: center;
-}
-
-.charts-layer {
-    height: 18vh;
-    min-height: 120px;
-    display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 6px;
-}
-
-.chart-card {
-    border-radius: 8px;
-    border: 1px solid #2a3a4b;
-    overflow: hidden;
-    background: #0f151c;
-}
-
-.chart-card .tradingview-widget-container,
-.chart-card .tradingview-widget-container__widget {
-    height: 100%;
 }
 
 @media screen and (max-width: 1200px) {
@@ -405,10 +383,6 @@ body {
         grid-template-columns: 1fr;
     }
 
-    .charts-layer {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        height: 22vh;
-    }
 }
 
 @media screen and (min-width: 900px) {
@@ -459,12 +433,4 @@ body {
         grid-template-columns: 1.2fr 0.7fr 0.8fr 1fr;
     }
 
-    .charts-layer {
-        grid-template-columns: 1fr;
-        height: auto;
-    }
-
-    .chart-card {
-        height: 130px;
-    }
 }
