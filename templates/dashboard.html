@@ -380,12 +380,42 @@
             );
         };
 
+        const WebsitePanel = ({ websites = [] }) => {
+            const upCount = websites.filter((site) => site.is_up).length;
+            const downCount = websites.length - upCount;
+
+            return (
+                <section class="panel website-layer">
+                    <div class="website-head">
+                        <div class="panel-title">Website</div>
+                        <div class="website-summary">
+                            <span class="badge running">Up {upCount}</span>
+                            <span class="badge problem">Down {downCount}</span>
+                        </div>
+                    </div>
+                    <div class="website-list">
+                        {websites.length === 0 && <div class="empty-state">No website data</div>}
+                        {websites.map((site) => (
+                            <div class={`website-row ${site.is_up ? 'up' : 'down'}`} key={site.url}>
+                                <div class="website-name">{site.url.replace(/^https?:\/\//, '')}</div>
+                                <div class="website-meta">
+                                    <span>{site.status_code || 'ERR'}</span>
+                                    <span>{site.latency_ms}ms</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            );
+        };
+
         const Dashboard = ({ socket }) => {
             const [voscData, setVoscData] = useState({});
             const [priceData, setPriceData] = useState({});
             const [portfolios, setPortfolios] = useState(initialPortfolios);
             const [pingTimes, setPingTimes] = useState(initialPingTimes);
             const [jenkinsStatus, setJenkinsStatus] = useState({ jobs: [] });
+            const [websiteStatus, setWebsiteStatus] = useState({ websites: [] });
 
             useEffect(() => {
                 const handleRealtimeVosc = (data) => setVoscData(typeof data === 'string' ? JSON.parse(data) : data);
@@ -448,6 +478,25 @@
                 return () => clearInterval(interval);
             }, []);
 
+            useEffect(() => {
+                const updateWebsiteStatus = async () => {
+                    try {
+                        const response = await fetch('/website_status', {
+                            method: 'GET',
+                            headers: { 'Content-Type': 'application/json' },
+                        });
+                        const data = await response.json();
+                        setWebsiteStatus(data || { websites: [] });
+                    } catch (error) {
+                        setWebsiteStatus({ websites: [] });
+                    }
+                };
+
+                updateWebsiteStatus();
+                const interval = setInterval(updateWebsiteStatus, 30000);
+                return () => clearInterval(interval);
+            }, []);
+
             let totalPnl = 0;
             let aum = 0;
 
@@ -483,7 +532,10 @@
 
                     <section class="main-layer">
                         <BotPanel portfolios={portfolios} pingTimes={pingTimes} currentPrices={priceData} />
-                        <JenkinsPanel jobs={jenkinsStatus.jobs || []} />
+                        <div class="side-layer">
+                            <JenkinsPanel jobs={jenkinsStatus.jobs || []} />
+                            <WebsitePanel websites={websiteStatus.websites || []} />
+                        </div>
                     </section>
                 </div>
             );

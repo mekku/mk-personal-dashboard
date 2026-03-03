@@ -183,6 +183,16 @@ realtime_vosc = {
     # "ETHUSD": 0,
 }
 
+website_targets = [
+    "https://www.masci.or.th",
+    "https://events.ipst.ac.th",
+    "https://timewfh.ipst.ac.th",
+    "https://ideractive.com",
+    "https://intelligence.masci.or.th",
+    "https://studio.buildx.app",
+    "https://api.buildx.app/status",
+]
+
 ping_time = {}
 futures = {}
 port_loading = False
@@ -649,6 +659,40 @@ def jenkins():
         return json.dumps(data)
     except:
         return []
+
+@app.route("/website_status")
+def website_status():
+    results = []
+
+    for url in website_targets:
+        start = time.time()
+        status_code = None
+        error = None
+        is_up = False
+
+        try:
+            response = requests.get(
+                url,
+                timeout=8,
+                allow_redirects=True,
+                headers={"User-Agent": "mk-dashboard-monitor/1.0"},
+            )
+            status_code = response.status_code
+            is_up = status_code < 500
+        except Exception as e:
+            error = str(e)
+
+        latency_ms = int((time.time() - start) * 1000)
+        results.append({
+            "url": url,
+            "status_code": status_code,
+            "latency_ms": latency_ms,
+            "is_up": is_up,
+            "error": error,
+            "checked_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        })
+
+    return json.dumps({"websites": results})
 
 @app.route("/abt_status")
 def abt_status():
