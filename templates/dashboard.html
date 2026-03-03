@@ -92,13 +92,42 @@
             });
         };
 
+        const parseDashboardTime = (pingValue) => {
+            if (!pingValue) {
+                return null;
+            }
+
+            if (typeof pingValue === 'number') {
+                return new Date(pingValue);
+            }
+
+            const text = String(pingValue).trim();
+            const directDate = new Date(text);
+            if (!Number.isNaN(directDate.getTime())) {
+                return directDate;
+            }
+
+            const match = text.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})$/);
+            if (match) {
+                const year = Number(match[1]);
+                const month = Number(match[2]) - 1;
+                const day = Number(match[3]);
+                const hour = Number(match[4]);
+                const minute = Number(match[5]);
+                const second = Number(match[6]);
+                return new Date(year, month, day, hour, minute, second);
+            }
+
+            return null;
+        };
+
         const parsePingAge = (pingValue) => {
             if (!pingValue) {
                 return { minutes: Infinity, isActive: false };
             }
 
-            const pingDate = new Date(pingValue);
-            if (Number.isNaN(pingDate.getTime())) {
+            const pingDate = parseDashboardTime(pingValue);
+            if (!pingDate || Number.isNaN(pingDate.getTime())) {
                 return { minutes: Infinity, isActive: false };
             }
 
