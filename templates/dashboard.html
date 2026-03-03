@@ -305,36 +305,36 @@
                         {rows.length === 0 && <div class="empty-state">No bot data</div>}
                         {rows.map((row) => (
                             <div class={`bot-row ${row.isHealthy ? 'running' : 'critical'}`} key={row.key}>
-                                <div class="bot-main">
-                                    <div class="bot-name">
-                                        {row.botName}
+                                <div class="bot-line line-main">
+                                    <div class="bot-inline">
+                                        <span class="bot-name">{row.botName}</span>
+                                        <span class="bot-symbol">{row.symbol}</span>
                                         {row.hasPosition && <span class="bot-tag">POS</span>}
+                                        <span class={`bot-pos-pnl ${row.positionPnl >= 0 ? 'up' : 'down'}`}>PnL {formatValue(row.positionPnl)}</span>
                                     </div>
-                                    {row.hasPosition && (
-                                        <div class="bot-detail">
-                                            <div class="bot-detail-line">
-                                                <span class={`bot-pos-pnl ${row.positionPnl >= 0 ? 'up' : 'down'}`}>PnL {formatValue(row.positionPnl)}</span>
-                                            </div>
-                                            <div class="bot-detail-line">
-                                                <span class="bot-tpsl">TP {row.tp !== null ? formatValue(row.tp) : '-'}</span>
-                                                <span class={`bot-forecast ${row.tpForecast !== null && row.tpForecast >= 0 ? 'up' : 'down'}`}>
-                                                    {row.tpForecast !== null ? `${formatValue(row.tpForecast)} (${formatValue(row.balance ? (row.tpForecast / row.balance) * 100 : 0)}%)` : '-'}
-                                                </span>
-                                            </div>
-                                            <div class="bot-detail-line">
-                                                <span class="bot-tpsl">SL {row.sl !== null ? formatValue(row.sl) : '-'}</span>
-                                                <span class={`bot-forecast ${row.slForecast !== null && row.slForecast >= 0 ? 'up' : 'down'}`}>
-                                                    {row.slForecast !== null ? `${formatValue(row.slForecast)} (${formatValue(row.balance ? (row.slForecast / row.balance) * 100 : 0)}%)` : '-'}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    )}
+                                    <span class={`bot-health ${row.isHealthy ? 'ok' : 'bad'}`}>
+                                        {row.isHealthy ? 'OK' : 'CHECK'}
+                                    </span>
                                 </div>
-                                <div class="bot-symbol">{row.symbol}</div>
-                                <div class={`bot-health ${row.isHealthy ? 'ok' : 'bad'}`}>
-                                    {row.isHealthy ? 'OK' : 'CHECK'}
+
+                                <div class="bot-line">
+                                    <div class="bot-inline">
+                                        <span class="bot-tpsl">TP {row.tp !== null ? formatValue(row.tp) : '-'}</span>
+                                        <span class={`bot-forecast ${row.tpForecast !== null && row.tpForecast >= 0 ? 'up' : 'down'}`}>
+                                            ({row.tpForecast !== null ? formatValue(row.tpForecast) : '-'})
+                                        </span>
+                                    </div>
+                                    <span class="bot-total">AUM {formatValue(row.total)}</span>
                                 </div>
-                                <div class="bot-total">{formatValue(row.total)}</div>
+
+                                <div class="bot-line">
+                                    <div class="bot-inline">
+                                        <span class="bot-tpsl">SL {row.sl !== null ? formatValue(row.sl) : '-'}</span>
+                                        <span class={`bot-forecast ${row.slForecast !== null && row.slForecast >= 0 ? 'up' : 'down'}`}>
+                                            ({row.slForecast !== null ? formatValue(row.slForecast) : '-'})
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                         ))}
                     </div>
