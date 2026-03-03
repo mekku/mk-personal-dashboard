@@ -291,13 +291,17 @@ body {
 
 .bot-detail {
     margin-top: 2px;
-    display: flex;
-    gap: 4px;
-    font-size: 0.62rem;
+    display: block;
+    font-size: 0.74rem;
     color: #b0c1d0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+}
+
+.bot-detail-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    line-height: 1.25;
 }
 
 .bot-pos-pnl {
@@ -306,6 +310,10 @@ body {
 
 .bot-tpsl {
     color: #9bb0c2;
+}
+
+.bot-forecast {
+    font-weight: 700;
 }
 
 .jenkins-head {

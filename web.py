@@ -628,15 +628,22 @@ def jenkins():
             #         console.log(response);
             #         // {"_class":"hudson.model.Hudson","assignedLabels":[{"name":"built-in"},{"name":"master"}],"mode":"NORMAL","nodeDescription":"the Jenkins controller's built-in node","nodeName":"","numExecutors":4,"description":null,"jobs":[{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"BuildX-Server-DEV","url":"https://mkjk.ideractive.com/job/BuildX-Server-DEV/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"BuildX-Server-Lambda-DEV","url":"https://mkjk.ideractive.com/job/BuildX-Server-Lambda-DEV/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"BuildX-Studio-DEV","url":"https://mkjk.ideractive.com/job/BuildX-Studio-DEV/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"ipone-b2b (staging)","url":"https://mkjk.ideractive.com/job/ipone-b2b%20(staging)/","color":"blue"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"ipone-b2c (staging)","url":"https://mkjk.ideractive.com/job/ipone-b2c%20(staging)/","color":"blue"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"KCC-E-Memo-BuildX-Server","url":"https://mkjk.ideractive.com/job/KCC-E-Memo-BuildX-Server/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"KCC-E-Memo-BuildX-Studio","url":"https://mkjk.ideractive.com/job/KCC-E-Memo-BuildX-Studio/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"KCC-E-Memo-BuildX-Studio-UAT","url":"https://mkjk.ideractive.com/job/KCC-E-Memo-BuildX-Studio-UAT/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"MASCI-BuildX-Studio","url":"https://mkjk.ideractive.com/job/MASCI-BuildX-Studio/","color":"blue"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"MASCI-E-Memo-BuildX-Server","url":"https://mkjk.ideractive.com/job/MASCI-E-Memo-BuildX-Server/","color":"blue"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"mini-line-app-production","url":"https://mkjk.ideractive.com/job/mini-line-app-production/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"mini-line-app-staging","url":"https://mkjk.ideractive.com/job/mini-line-app-staging/","color":"blue"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"\ud83d\ude80 ipone-b2b (production)","url":"https://mkjk.ideractive.com/job/%F0%9F%9A%80%20ipone-b2b%20(production)/","color":"notbuilt"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"\ud83d\ude80 ipone-b2c (production)","url":"https://mkjk.ideractive.com/job/%F0%9F%9A%80%20ipone-b2c%20(production)/","color":"blue"}],"overallLoad":{},"primaryView":{"_class":"hudson.model.AllView","name":"all","url":"https://mkjk.ideractive.com/"},"quietingDown":false,"slaveAgentPort":50000,"unlabeledLoad":{},"useCrumbs":true,"useSecurity":true,"views":[{"_class":"hudson.model.AllView","name":"all","url":"https://mkjk.ideractive.com/"}]}
 
-    # Fetch Jenkins data
+    # Fetch Jenkins data with compact fields including last build timestamp
     url = "https://mkjk.ideractive.com/api/json"
     headers = {
         "Authorization": "Basic " + b64encode(b"nakara:1121756eb3f5e37e2a7be9006ef0ab19e1").decode("utf-8"),
         "Content-Type": "application/json"
     }
-    response = requests.get(url, headers=headers)
+    params = {
+        "tree": "jobs[name,url,color,lastBuild[timestamp]]"
+    }
+    response = requests.get(url, headers=headers, params=params, timeout=10)
     try:
         data = response.json()
+
+        for job in data.get("jobs", []):
+            last_build = job.get("lastBuild") or {}
+            job["last_build_ts"] = last_build.get("timestamp")
     
         # Return as json
         return json.dumps(data)

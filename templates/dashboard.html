@@ -33,6 +33,7 @@
 
         const TRACKED_SYMBOLS = ['BTC', 'ETH', 'SOL', 'DOGE', 'XRP'];
         const PING_ACTIVE_MINUTES = 5;
+        const JENKINS_STALE_DAYS = 30;
         const initialFuturesRaw = {{ futures | tojson | safe }};
         const initialPingByBot = {{ initial_ping_time | tojson | safe }};
 
@@ -165,6 +166,37 @@
             }, 0);
         };
 
+        const symbolPnlAtPrice = (symbolData, symbol, targetPrice) => {
+            if (!symbolData || !symbolData.positions || !targetPrice) {
+                return null;
+            }
+
+            const price = Number(targetPrice);
+            if (!price) {
+                return null;
+            }
+
+            return symbolData.positions.reduce((sum, position) => {
+                let contracts = Number(position.contracts || 0);
+                const entryPrice = Number(position.entryPrice || 0);
+
+                if (!entryPrice) {
+                    return sum;
+                }
+
+                if (symbol === 'BTCUSD') {
+                    contracts = contracts * 100 / entryPrice;
+                }
+
+                let pnl = (price - entryPrice) * contracts;
+                if (position.side === 'short') {
+                    pnl = -pnl;
+                }
+
+                return sum + pnl;
+            }, 0);
+        };
+
         const ClockCompact = () => {
             const [time, setTime] = useState(new Date());
 
@@ -245,9 +277,12 @@
                         hasPosition,
                         isHealthy,
                         total: Number(bot.balance || 0) + rowUpnl,
+                        balance: Number(bot.balance || 0),
                         positionPnl: rowUpnl,
                         tp: tpOrder ? Number(tpOrder.triggerPrice || tpOrder.price || 0) : null,
                         sl: slOrder ? Number(slOrder.triggerPrice || slOrder.price || 0) : null,
+                        tpForecast: tpOrder ? symbolPnlAtPrice(symbolData, symbol, Number(tpOrder.triggerPrice || tpOrder.price || 0)) : null,
+                        slForecast: slOrder ? symbolPnlAtPrice(symbolData, symbol, Number(slOrder.triggerPrice || slOrder.price || 0)) : null,
                     });
                 });
             });
@@ -277,9 +312,21 @@
                                     </div>
                                     {row.hasPosition && (
                                         <div class="bot-detail">
-                                            <span class={`bot-pos-pnl ${row.positionPnl >= 0 ? 'up' : 'down'}`}>PnL {formatValue(row.positionPnl)}</span>
-                                            <span class="bot-tpsl">TP {row.tp !== null ? formatValue(row.tp) : '-'}</span>
-                                            <span class="bot-tpsl">SL {row.sl !== null ? formatValue(row.sl) : '-'}</span>
+                                            <div class="bot-detail-line">
+                                                <span class={`bot-pos-pnl ${row.positionPnl >= 0 ? 'up' : 'down'}`}>PnL {formatValue(row.positionPnl)}</span>
+                                            </div>
+                                            <div class="bot-detail-line">
+                                                <span class="bot-tpsl">TP {row.tp !== null ? formatValue(row.tp) : '-'}</span>
+                                                <span class={`bot-forecast ${row.tpForecast !== null && row.tpForecast >= 0 ? 'up' : 'down'}`}>
+                                                    {row.tpForecast !== null ? `${formatValue(row.tpForecast)} (${formatValue(row.balance ? (row.tpForecast / row.balance) * 100 : 0)}%)` : '-'}
+                                                </span>
+                                            </div>
+                                            <div class="bot-detail-line">
+                                                <span class="bot-tpsl">SL {row.sl !== null ? formatValue(row.sl) : '-'}</span>
+                                                <span class={`bot-forecast ${row.slForecast !== null && row.slForecast >= 0 ? 'up' : 'down'}`}>
+                                                    {row.slForecast !== null ? `${formatValue(row.slForecast)} (${formatValue(row.balance ? (row.slForecast / row.balance) * 100 : 0)}%)` : '-'}
+                                                </span>
+                                            </div>
                                         </div>
                                     )}
                                 </div>
@@ -296,7 +343,19 @@
         };
 
         const JenkinsPanel = ({ jobs = [] }) => {
-            const focusJobs = jobs.filter((job) => isJenkinsRunning(job.color) || isJenkinsProblem(job.color));
+            const now = Date.now();
+            const staleMs = JENKINS_STALE_DAYS * 24 * 60 * 60 * 1000;
+            const isStaleJob = (job) => {
+                const timestamp = Number(job.last_build_ts || _.get(job, ['lastBuild', 'timestamp']) || 0);
+                if (!timestamp) {
+                    return true;
+                }
+                return (now - timestamp) > staleMs;
+            };
+
+            const focusJobs = jobs
+                .filter((job) => !isStaleJob(job) || isJenkinsRunning(job.color))
+                .filter((job) => isJenkinsRunning(job.color) || isJenkinsProblem(job.color));
             const runningCount = focusJobs.filter((job) => isJenkinsRunning(job.color)).length;
             const problemCount = focusJobs.filter((job) => isJenkinsProblem(job.color)).length;
 
