@@ -320,12 +320,12 @@
                                 <div class="bot-line">
                                     <div class="bot-inline">
                                         {row.tp !== null && (
-                                            <>
+                                            <span class="bot-inline">
                                                 <span class="bot-tpsl">TP {formatValue(row.tp)}</span>
                                                 <span class={`bot-forecast ${row.tpForecast !== null && row.tpForecast >= 0 ? 'up' : 'down'}`}>
                                                     ({row.tpForecast !== null ? formatValue(row.tpForecast) : '-'})
                                                 </span>
-                                            </>
+                                            </span>
                                         )}
                                     </div>
                                     <span class="bot-total">AUM {formatValue(row.total)}</span>
