@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real-Time VOSC Data</title>
+    <title>Real-Time Ops Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.0/socket.io.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
@@ -16,613 +16,389 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Monofett&family=Monomaniac+One&family=Orbitron:wght@400..900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static',filename='styles/style.css') }}">
-
 </head>
 
 <body>
     <div class="wrapper">
-        <div class="clock-container">
-            <div id="clock"></div>
-            <div id="homeassistant-status"></div>
-        </div>
-        <div>
-            <div id="app"></div>
-        </div>
+        <div id="app"></div>
 
-        <div class="charts">
-            <div class="chart">
-                <div class="chart-body">
-                    <div class="tradingview-widget-container">
-                        <div class="tradingview-widget-container__widget"></div>
-                        <script type="text/javascript"
-                            src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-                                { "autosize": true, "symbol": "BINANCE:BTCUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
-                            </script>
-                    </div>
+        <section class="charts-layer">
+            <div class="chart-card">
+                <div class="tradingview-widget-container">
+                    <div class="tradingview-widget-container__widget"></div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                        { "autosize": true, "symbol": "BINANCE:BTCUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
+                    </script>
                 </div>
             </div>
-            <div class="chart">
-                <div class="chart-body">
-                    <div class="tradingview-widget-container">
-                        <div class="tradingview-widget-container__widget"></div>
-                        <script type="text/javascript"
-                            src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-                                { "autosize": true, "symbol": "BINANCE:ETHUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
-                            </script>
-                    </div>
+            <div class="chart-card">
+                <div class="tradingview-widget-container">
+                    <div class="tradingview-widget-container__widget"></div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                        { "autosize": true, "symbol": "BINANCE:ETHUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
+                    </script>
                 </div>
             </div>
-            <div class="chart">
-                <div class="chart-body">
-                    <div class="tradingview-widget-container">
-                        <div class="tradingview-widget-container__widget"></div>
-                        <script type="text/javascript"
-                            src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-                                { "autosize": true, "symbol": "BINANCE:DOGEUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
-                            </script>
-                    </div>
+            <div class="chart-card">
+                <div class="tradingview-widget-container">
+                    <div class="tradingview-widget-container__widget"></div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                        { "autosize": true, "symbol": "BINANCE:DOGEUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
+                    </script>
                 </div>
             </div>
-        </div>
-        <div class="charts">
-            <div class="chart">
-                <div class="chart-body">
-                    <div class="tradingview-widget-container">
-                        <div class="tradingview-widget-container__widget"></div>
-                        <script type="text/javascript"
-                            src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-                                { "autosize": true, "symbol": "BINANCE:SOLUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
-                            </script>
-                    </div>
+            <div class="chart-card">
+                <div class="tradingview-widget-container">
+                    <div class="tradingview-widget-container__widget"></div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                        { "autosize": true, "symbol": "BINANCE:SOLUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
+                    </script>
                 </div>
             </div>
-            <div class="chart">
-                <div class="chart-body">
-                    <div class="tradingview-widget-container">
-                        <div class="tradingview-widget-container__widget"></div>
-                        <script type="text/javascript"
-                            src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-                                { "autosize": true, "symbol": "BINANCE:AVAXUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
-                            </script>
-                    </div>
+            <div class="chart-card">
+                <div class="tradingview-widget-container">
+                    <div class="tradingview-widget-container__widget"></div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                        { "autosize": true, "symbol": "BINANCE:AVAXUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
+                    </script>
                 </div>
             </div>
-            <div class="chart">
-                <div class="chart-body">
-                    <div class="tradingview-widget-container">
-                        <div class="tradingview-widget-container__widget"></div>
-                        <script type="text/javascript"
-                            src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
-                                { "autosize": true, "symbol": "BINANCE:XRPUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
-                            </script>
-                    </div>
+            <div class="chart-card">
+                <div class="tradingview-widget-container">
+                    <div class="tradingview-widget-container__widget"></div>
+                    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                        { "autosize": true, "symbol": "BINANCE:XRPUSDT.P", "interval": "240", "timezone": "Asia/Bangkok", "theme": "dark", "style": "1", "locale": "en", "hide_top_toolbar": true, "allow_symbol_change": false, "save_image": false, "calendar": false, "studies": ["STD;Volume%1Oscillator"], "support_host": "https://www.tradingview.com" }
+                    </script>
                 </div>
             </div>
-        </div>
+        </section>
+    </div>
 
+    <script type="text/babel">
+        window.React = { createElement: preact.h }
 
-        <script type="text/babel">
-            window.React = { createElement: preact.h }
+        const { h, render } = preact;
+        const { useState, useEffect } = preactHooks;
 
-            const { h, render } = preact;
-            const { useState, useEffect } = preactHooks;
+        const TRACKED_SYMBOLS = ['BTC', 'ETH', 'SOL', 'DOGE', 'XRP'];
+        const PING_ACTIVE_MINUTES = 5;
 
-            const formatValue = (price, round = false) => {
-                if (Math.abs(price) < 1.0) {
-                    return numeral(price).format('0.0000');
-                }
-                else if (Math.abs(price) < 10.0) {
-                    return numeral(price).format('0.00');
-                }
-                else if (Math.abs(price) < 100.0) {
-                    return numeral(price).format('0.0');
-                }
-                else {
-                    return numeral(price).format('0,0');
-                }
+        const isJenkinsRunning = (color = '') => color.endsWith('_anime');
+        const isJenkinsProblem = (color = '') => ['red', 'red_anime', 'yellow', 'aborted', 'aborted_anime', 'notbuilt'].includes(color);
+
+        const formatValue = (value, round = false) => {
+            const numeric = Number(value || 0);
+            if (Math.abs(numeric) < 1.0) {
+                return numeral(numeric).format('0.0000');
+            }
+            if (Math.abs(numeric) < 10.0) {
+                return numeral(numeric).format('0.00');
+            }
+            if (Math.abs(numeric) < 100.0) {
+                return numeral(numeric).format('0.0');
+            }
+            return numeral(numeric).format('0,0');
+        };
+
+        const renderDigits = (value) => {
+            const strValue = formatValue(value);
+            return strValue.split('').map((digit, idx) => {
+                const className = digit === '.' ? 'digit dot' : digit === ',' ? 'digit comma' : 'digit';
+                return <span class={className} key={`${digit}-${idx}`}>{digit}</span>;
+            });
+        };
+
+        const parsePingAge = (pingValue) => {
+            if (!pingValue) {
+                return { minutes: Infinity, isActive: false };
+            }
+
+            const pingDate = new Date(pingValue);
+            if (Number.isNaN(pingDate.getTime())) {
+                return { minutes: Infinity, isActive: false };
+            }
+
+            const minutes = Math.floor((Date.now() - pingDate.getTime()) / 60000);
+            return {
+                minutes,
+                isActive: minutes < PING_ACTIVE_MINUTES,
             };
+        };
 
-            const renderDigits = (value, round = false) => {
-                let strValue = formatValue(value, round);
-                let digits = strValue.split('');
-                let result = [];
+        const symbolUpnl = (symbolData, symbol, currentPrices) => {
+            if (!symbolData || !symbolData.positions) {
+                return 0;
+            }
 
-                for (let i = 0; i < digits.length; i++) {
-                    if (digits[i] === '.') {
-                        result.push(<span class="digit dot">.</span>);
-                    }
-                    else if (digits[i] === ',') {
-                        result.push(<span class="digit comma">,</span>);
-                    }
-                    else {
-                        result.push(<span class="digit">{digits[i]}</span>);
-                    }
+            return symbolData.positions.reduce((sum, position) => {
+                let contracts = Number(position.contracts || 0);
+                const entryPrice = Number(position.entryPrice || 0);
+                const currentPrice = Number(currentPrices[symbol] || 0);
+
+                if (!entryPrice || !currentPrice) {
+                    return sum;
                 }
 
-                return result;
-            };
+                if (symbol === 'BTCUSD') {
+                    contracts = contracts * 100 / entryPrice;
+                }
 
-            const HomeAssistantStatus = ({ status }) => {
-                return (
-                    <div class={`homeassistant ${status.status === 'alert' ? 'alert' : status.status === 'error' ? 'error' : 'normal'}`}>
-                        <div class="homeassistant-title">HA Status</div>
-                        <div class="homeassistant-sensor">
-                            {status.error ? (
-                                <div class="sensor-error">{status.error}</div>
-                            ) : (
-                                <div class="sensor-info">
-                                    <div class="sensor-name">{status.friendly_name || 'DTU AC Daily Energy'}</div>
-                                    <div class={`sensor-value ${status.status === 'alert' ? 'alert' : 'normal'}`}>
-                                        {status.value !== undefined ? `${status.value} ${status.unit || 'kWh'}` : 'No data'}
-                                    </div>
-                                    <div class="sensor-status">
-                                        {status.status === 'alert' ? 'ALERT' : status.status === 'error' ? 'ERROR' : 'Normal'}
-                                    </div>
+                let pnl = (currentPrice - entryPrice) * contracts;
+                if (position.side === 'short') {
+                    pnl = -pnl;
+                }
+
+                return sum + pnl;
+            }, 0);
+        };
+
+        const ClockCompact = () => {
+            const [time, setTime] = useState(new Date());
+
+            useEffect(() => {
+                const timer = setInterval(() => setTime(new Date()), 1000);
+                return () => clearInterval(timer);
+            }, []);
+
+            return (
+                <div class="clock-panel">
+                    <div class="clock-time">{time.toLocaleTimeString('en-US', { hour12: false })}</div>
+                    <div class="clock-date">{time.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: '2-digit' })}</div>
+                </div>
+            );
+        };
+
+        const MarketStrip = ({ priceData, voscData, totalPnl, aum }) => {
+            const marketCards = TRACKED_SYMBOLS.map((symbol) => ({
+                key: symbol,
+                label: symbol,
+                price: priceData[`${symbol}USDT`] || 0,
+                delta: voscData[`${symbol}USDT`] || 0,
+            }));
+
+            marketCards.push({ key: 'UPNL', label: 'uPnL', price: totalPnl, delta: null });
+            marketCards.push({ key: 'AUM', label: 'AUM', price: aum, delta: null });
+
+            return (
+                <section class="panel market-layer">
+                    <div class="panel-title">Market</div>
+                    <div class="market-grid">
+                        {marketCards.map((card) => (
+                            <div class="market-card" key={card.key}>
+                                <div class="market-head">
+                                    <span>{card.label}</span>
+                                    {card.delta !== null && (
+                                        <span class={Number(card.delta) >= 0 ? 'delta up' : 'delta down'}>{numeral(card.delta).format('0,0.00')}%</span>
+                                    )}
                                 </div>
-                            )}
+                                <div class="market-price">{renderDigits(card.price)}</div>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            );
+        };
+
+        const BotPanel = ({ portfolios, pingTimes, currentPrices }) => {
+            const rows = [];
+
+            Object.keys(portfolios).forEach((botName) => {
+                const bot = portfolios[botName] || {};
+                const positionsBySymbol = bot.positions || {};
+
+                Object.keys(positionsBySymbol).forEach((symbol) => {
+                    const symbolData = positionsBySymbol[symbol] || {};
+                    const pingValue = _.get(pingTimes, [botName, symbol]) || symbolData.ping_time;
+                    const ping = parsePingAge(pingValue);
+                    const hasOrders = (symbolData.orders || []).length > 0;
+                    const hasPosition = (symbolData.positions || []).length > 0;
+                    const isRunning = hasOrders || hasPosition;
+                    const isIssue = !ping.isActive;
+
+                    if (!isRunning && !isIssue) {
+                        return;
+                    }
+
+                    rows.push({
+                        key: `${botName}-${symbol}`,
+                        botName: botName.replace('VAR-BOT-', ''),
+                        symbol: symbol.replace('USDT', '').replace('USD', ''),
+                        ping,
+                        isRunning,
+                        isIssue,
+                        orders: (symbolData.orders || []).length,
+                        upnl: symbolUpnl(symbolData, symbol, currentPrices),
+                    });
+                });
+            });
+
+            rows.sort((a, b) => {
+                if (a.isIssue !== b.isIssue) {
+                    return a.isIssue ? -1 : 1;
+                }
+                return a.botName.localeCompare(b.botName);
+            });
+
+            return (
+                <section class="panel bot-layer">
+                    <div class="panel-title">Bot Watchlist</div>
+                    <div class="panel-subtitle">showing only running or abnormal</div>
+                    <div class="bot-list">
+                        {rows.length === 0 && <div class="empty-state">No active or abnormal bot</div>}
+                        {rows.map((row) => (
+                            <div class={`bot-row ${row.isIssue ? 'critical' : 'running'}`} key={row.key}>
+                                <div class="bot-name">{row.botName}</div>
+                                <div class="bot-symbol">{row.symbol}</div>
+                                <div class="bot-ping">{Number.isFinite(row.ping.minutes) ? `${row.ping.minutes}m` : '--'}</div>
+                                <div class={`bot-upnl ${row.upnl >= 0 ? 'up' : 'down'}`}>{formatValue(row.upnl)}</div>
+                                <div class="bot-orders">{row.orders} orders</div>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            );
+        };
+
+        const JenkinsPanel = ({ jobs = [] }) => {
+            const focusJobs = jobs.filter((job) => isJenkinsRunning(job.color) || isJenkinsProblem(job.color));
+            const runningCount = focusJobs.filter((job) => isJenkinsRunning(job.color)).length;
+            const problemCount = focusJobs.filter((job) => isJenkinsProblem(job.color)).length;
+
+            return (
+                <section class="panel jenkins-layer">
+                    <div class="jenkins-head">
+                        <div class="panel-title">Jenkins</div>
+                        <div class="jenkins-summary">
+                            <span class="badge running">Running {runningCount}</span>
+                            <span class="badge problem">Problem {problemCount}</span>
                         </div>
                     </div>
-                );
-            };
+                    <div class="jenkins-list">
+                        {focusJobs.length === 0 && <div class="empty-state">No running or problem job</div>}
+                        {focusJobs.map((job) => (
+                            <div class={`jenkins-job ${isJenkinsProblem(job.color) ? 'problem' : 'running'}`} key={job.name}>
+                                <span class="job-name">{job.name}</span>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            );
+        };
 
-            const HomeAssistantApp = () => {
-                const [homeAssistantStatus, setHomeAssistantStatus] = useState({});
+        const Dashboard = ({ socket }) => {
+            const [voscData, setVoscData] = useState({});
+            const [priceData, setPriceData] = useState({});
+            const [portfolios, setPortfolios] = useState({});
+            const [pingTimes, setPingTimes] = useState({});
+            const [jenkinsStatus, setJenkinsStatus] = useState({ jobs: [] });
 
-                useEffect(() => {
-                    updateHomeAssistantStatus();
-                    let interval = setInterval(() => {
-                        updateHomeAssistantStatus();
-                    }, 10000);
+            useEffect(() => {
+                const handleRealtimeVosc = (data) => setVoscData(typeof data === 'string' ? JSON.parse(data) : data);
+                const handleRealtimePrice = (data) => setPriceData(typeof data === 'string' ? JSON.parse(data) : data);
+                const handlePositions = (data) => {
+                    const parsed = typeof data === 'string' ? JSON.parse(data) : data;
+                    setPortfolios((prev) => ({ ...prev, [parsed.name]: parsed }));
+                };
 
-                    return () => {
-                        clearInterval(interval);
-                    };
-                }, []);
+                const handlePing = (data) => {
+                    const parsed = typeof data === 'string' ? JSON.parse(data) : data;
+                    const { name, ping_time } = parsed;
+                    const names = name.split('-');
+                    let mainName = name;
+                    let symbol = names[names.length - 1];
 
-                const updateHomeAssistantStatus = async () => {
+                    if (!['BTC', 'ETH', 'SOL', 'DOGE', 'AVAX', 'XRP'].includes(symbol)) {
+                        symbol = 'BTC';
+                    } else {
+                        mainName = names.slice(0, names.length - 1).join('-');
+                    }
+
+                    setPingTimes((prev) => {
+                        const next = { ...prev };
+                        _.set(next, [mainName, `${symbol}USD`], ping_time);
+                        _.set(next, [mainName, `${symbol}USDT`], ping_time);
+                        return next;
+                    });
+                };
+
+                socket.on('realtime_vosc', handleRealtimeVosc);
+                socket.on('realtime_price', handleRealtimePrice);
+                socket.on('bot_info_update', handlePositions);
+                socket.on('ping', handlePing);
+
+                return () => {
+                    socket.off('realtime_vosc', handleRealtimeVosc);
+                    socket.off('realtime_price', handleRealtimePrice);
+                    socket.off('bot_info_update', handlePositions);
+                    socket.off('ping', handlePing);
+                };
+            }, [socket]);
+
+            useEffect(() => {
+                const updateJenkinsStatus = async () => {
                     try {
-                        const url = '/homeassistant';
-                        const headers = {
-                            "Content-Type": "application/json"
-                        };
-                        const response = await fetch(url, {
+                        const response = await fetch('/jenkins', {
                             method: 'GET',
-                            headers: headers
+                            headers: { 'Content-Type': 'application/json' },
                         });
-
                         const data = await response.json();
-                        setHomeAssistantStatus(data);
+                        setJenkinsStatus(data || { jobs: [] });
                     } catch (error) {
-                        console.error('Failed to fetch Home Assistant status:', error);
-                        setHomeAssistantStatus({
-                            error: 'Failed to fetch data',
-                            status: 'error'
-                        });
+                        setJenkinsStatus({ jobs: [] });
                     }
                 };
 
-                return <HomeAssistantStatus status={homeAssistantStatus} />;
-            };
+                updateJenkinsStatus();
+                const interval = setInterval(updateJenkinsStatus, 10000);
+                return () => clearInterval(interval);
+            }, []);
 
-            const Clock = () => {
-                const [time, setTime] = useState(new Date());
+            let totalPnl = 0;
+            let aum = 0;
 
-                useEffect(() => {
-                    const timer = setInterval(() => {
-                        setTime(new Date());
-                    }, 1000);
+            Object.keys(portfolios).forEach((botName) => {
+                const bot = portfolios[botName] || {};
+                aum += Number(bot.initial || 0);
+                Object.keys(bot.positions || {}).forEach((symbol) => {
+                    totalPnl += symbolUpnl(bot.positions[symbol], symbol, priceData);
+                });
+            });
 
-                    return () => clearInterval(timer);
-                }, []);
+            aum += totalPnl;
 
-                const formatTime = (date) => {
-                    return date.toLocaleTimeString('en-US', {
-                        hour12: false,
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit'
-                    });
-                };
-
-                const formatDate = (date) => {
-                    return date.toLocaleDateString('en-US', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric'
-                    });
-                };
-
-                return (
-                    <div class="clock">
-                        <div class="clock-time">{formatTime(time)}</div>
-                        <div class="clock-date">{formatDate(time)}</div>
-                    </div>
-                );
-            };
-
-            const Portfolio = ({ portfolio, currentPrices, pingTimes = null }) => {
-                return portfolio.positions && Object.keys(portfolio.positions).map((symbol) => {
-                    let portfolioData = portfolio.positions[symbol];
-                    // console.log(portfolioData);
-                    //     {
-                    //         "symbol": "DOGEUSDT",
-                    // "positions": [],
-                    // "pnl": "",
-                    // "orders": [
-                    // {
-                    //     "info": {
-                    //     "orderId": "60598731337",
-                    // "symbol": "DOGEUSDT",
-                    // "status": "NEW",
-                    // "clientOrderId": "x-xcKtGhcu3a6fb976cd7381ac47dd8c",
-                    // "price": "0.350570",
-                    // "avgPrice": "0",
-                    // "origQty": "166",
-                    // "executedQty": "0",
-                    // "cumQuote": "0.000000",
-                    // "timeInForce": "GTC",
-                    // "type": "STOP",
-                    // "reduceOnly": false,
-                    // "closePosition": false,
-                    // "side": "BUY",
-                    // "positionSide": "BOTH",
-                    // "stopPrice": "0.349870",
-                    // "workingType": "CONTRACT_PRICE",
-                    // "priceProtect": false,
-                    // "origType": "STOP",
-                    // "priceMatch": "NONE",
-                    // "selfTradePreventionMode": "EXPIRE_MAKER",
-                    // "goodTillDate": "0",
-                    // "time": "1734796807477",
-                    // "updateTime": "1734796807571"
-                    //             },
-                    // "id": "60598731337",
-                    // "clientOrderId": "x-xcKtGhcu3a6fb976cd7381ac47dd8c",
-                    // "timestamp": 1734796807477,
-                    // "datetime": "2024-12-21T16:00:07.477Z",
-                    // "lastTradeTimestamp": null,
-                    // "lastUpdateTimestamp": 1734796807571,
-                    // "symbol": "DOGE/USDT:USDT",
-                    // "type": "SL",
-                    // "timeInForce": "GTC",
-                    // "postOnly": false,
-                    // "reduceOnly": false,
-                    // "side": "buy",
-                    // "price": 0.35057,
-                    // "triggerPrice": 0.34987,
-                    // "amount": 166,
-                    // "cost": 0,
-                    // "average": null,
-                    // "filled": 0,
-                    // "remaining": 166,
-                    // "status": "open",
-                    // "fee": null,
-                    // "trades": [],
-                    // "fees": [],
-                    // "stopPrice": 0.34987,
-                    // "takeProfitPrice": null,
-                    // "stopLossPrice": null
-                    //         }
-                    // ],
-                    // "buy_order": {
-                    //     "info": {
-                    //     "orderId": "60598731337",
-                    // "symbol": "DOGEUSDT",
-                    // "status": "NEW",
-                    // "clientOrderId": "x-xcKtGhcu3a6fb976cd7381ac47dd8c",
-                    // "price": "0.350570",
-                    // "avgPrice": "0",
-                    // "origQty": "166",
-                    // "executedQty": "0",
-                    // "cumQuote": "0.000000",
-                    // "timeInForce": "GTC",
-                    // "type": "STOP",
-                    // "reduceOnly": false,
-                    // "closePosition": false,
-                    // "side": "BUY",
-                    // "positionSide": "BOTH",
-                    // "stopPrice": "0.349870",
-                    // "workingType": "CONTRACT_PRICE",
-                    // "priceProtect": false,
-                    // "origType": "STOP",
-                    // "priceMatch": "NONE",
-                    // "selfTradePreventionMode": "EXPIRE_MAKER",
-                    // "goodTillDate": "0",
-                    // "time": "1734796807477",
-                    // "updateTime": "1734796807571"
-                    //         },
-                    // "id": "60598731337",
-                    // "clientOrderId": "x-xcKtGhcu3a6fb976cd7381ac47dd8c",
-                    // "timestamp": 1734796807477,
-                    // "datetime": "2024-12-21T16:00:07.477Z",
-                    // "lastTradeTimestamp": null,
-                    // "lastUpdateTimestamp": 1734796807571,
-                    // "symbol": "DOGE/USDT:USDT",
-                    // "type": "SL",
-                    // "timeInForce": "GTC",
-                    // "postOnly": false,
-                    // "reduceOnly": false,
-                    // "side": "buy",
-                    // "price": 0.35057,
-                    // "triggerPrice": 0.34987,
-                    // "amount": 166,
-                    // "cost": 0,
-                    // "average": null,
-                    // "filled": 0,
-                    // "remaining": 166,
-                    // "status": "open",
-                    // "fee": null,
-                    // "trades": [],
-                    // "fees": [],
-                    // "stopPrice": 0.34987,
-                    // "takeProfitPrice": null,
-                    // "stopLossPrice": null
-                    //     },
-                    // "ping_time": "2024-12-21 23:04:19"
-                    // }
-                    let { positions, orders } = portfolioData;
-                    // let pingTime = portfolioData.ping_time ? new Date(portfolioData.ping_time) : null;
-                    let pingTime = pingTimes ? new Date(pingTimes[symbol]) : (portfolioData.ping_time ? new Date(portfolioData.ping_time) : null);
-                    let pingTimeStr = pingTime ? new Date(pingTime).toLocaleTimeString() : '';
-                    let timeSincePing = pingTime ? (Date.now() - pingTime) / 1000 : 0;
-                    let timeSincePingMinutes = Math.floor(timeSincePing / 60);
-                    let isActive = timeSincePingMinutes < 5;
-
-                    return <div class="portfolio">
-                        <div class="info">
-                            <div class="name">{portfolio.name.replace("VAR-BOT-", "")}</div>
-                            <div class="balance">{formatValue(portfolio.balance, true)}</div>
+            return (
+                <>
+                    <section class="panel top-layer">
+                        <div class="top-left">
+                            <ClockCompact />
                         </div>
-                        <div class="symbol-positions">
-                            <div class="symbol-position">
-                                <div class="info">
-                                    <div class="name">{symbol.replace("USDT", "-T").replace("USD", "")}</div>
-                                    <div class={`ping-status ${isActive ? 'active' : 'inactive'}`}></div>
-                                    <div class="ping-time">({timeSincePingMinutes}m)</div>
-                                </div>
-                                <div class="orders-list">
-                                    {orders && orders.map((order) => {
-                                        return <div class={`${order.side === 'buy' ? 'buy' : 'sell'}-orders`}>
-                                            <div class="order-type">{order.type}</div>
-                                            <div class="price">{formatValue(order.triggerPrice)}</div>
-                                        </div>;
-                                    })}
-                                </div>
-                                <div class="current-positions">
-                                    {positions && positions.map((position) => {
-                                        let contractSize = position.contracts;
-                                        let currentPrice = currentPrices[symbol] || 0;
-                                        let entryPrice = position.entryPrice;
-
-                                        if (symbol == "BTCUSD") {
-                                            contractSize = contractSize * 100 / entryPrice;
-                                        }
-
-                                        let allocationRatio = (contractSize * entryPrice) / portfolio.balance;
-                                        let pricePnlPercent = (currentPrice / entryPrice - 1) * 100;
-                                        let pnl = (currentPrice - entryPrice) * contractSize;
-                                        let pnlPercentage = (pnl / portfolio.balance) * 100;
-
-                                        if (position.side === 'short') {
-                                            pricePnlPercent = -pricePnlPercent;
-                                            pnl = -pnl;
-                                            pnlPercentage = -pnlPercentage;
-                                        }
-
-                                        portfolioData.upnl = pnl;
-
-                                        return <div class="p-position">
-                                            <div class={`p-${position.side}`}>{formatValue(allocationRatio)}x @ {formatValue(entryPrice)}</div>
-                                            <div class="active-position">
-                                                {formatValue(pnl, true)} ({formatValue(pnlPercentage, true)}/{formatValue(pricePnlPercent, true)}%)
-                                            </div>
-                                        </div>;
-                                    })}
-                                </div>
+                        <div class="top-right">
+                            <div class="summary-card">
+                                <div class="summary-label">Total uPnL</div>
+                                <div class={`summary-value ${totalPnl >= 0 ? 'up' : 'down'}`}>{formatValue(totalPnl)}</div>
+                            </div>
+                            <div class="summary-card">
+                                <div class="summary-label">Live AUM</div>
+                                <div class="summary-value">{formatValue(aum)}</div>
                             </div>
                         </div>
-                    </div>;
-                })
+                    </section>
 
-            };
+                    <MarketStrip priceData={priceData} voscData={voscData} totalPnl={totalPnl} aum={aum} />
 
-            const RealTimeVosc = ({ socket }) => {
-                const [voscData, setVoscData] = useState({
-                    BTCUSDT: 0,
-                    ETHUSDT: 0,
-                    SOLUSDT: 0,
-                    DOGEUSDT: 0,
-                });
+                    <section class="main-layer">
+                        <BotPanel portfolios={portfolios} pingTimes={pingTimes} currentPrices={priceData} />
+                        <JenkinsPanel jobs={jenkinsStatus.jobs || []} />
+                    </section>
+                </>
+            );
+        };
 
-                const [priceData, setPriceData] = useState({
-                    BTCUSDT: 0,
-                    ETHUSDT: 0,
-                    SOLUSDT: 0,
-                    DOGEUSDT: 0,
-                });
-
-                const [totalPnl, setTotalPnl] = useState(0);
-                const [aum, setAum] = useState(0);
-                const [portfolios, setPortfolios] = useState({});
-                const [pingTimes, setPingTimes] = useState({});
-                const [jenkinsStatus, setJenkinsStatus] = useState({});
-
-                useEffect(() => {
-                    const handleRealtimeVosc = (data) => {
-                        if (typeof data === 'string') {
-                            data = JSON.parse(data);
-                        }
-
-                        setVoscData(data);
-                    };
-
-                    socket.on('realtime_vosc', handleRealtimeVosc);
-
-                    const handleRealtimePrice = (data) => {
-                        if (typeof data === 'string') {
-                            data = JSON.parse(data);
-                        }
-
-                        setPriceData(data);
-                    };
-
-                    socket.on('realtime_price', handleRealtimePrice);
-
-                    const handlePositions = (data) => {
-                        // Update portfolio
-                        // console.log(data);
-                        data = JSON.parse(data);
-
-                        setPortfolios(portfolios => {
-                            // let updatedPortfolios = _.merge({}, portfolios[data.name] || {}, data);
-                            return { ...portfolios, [data.name]: data }
-                        });
-                    };
-
-                    socket.on('bot_info_update', handlePositions);
-
-                    socket.on('ping', function (data) {
-                        if (typeof data === 'string') {
-                            data = JSON.parse(data);
-                        }
-
-                        // Update ping time for each bot
-                        let { name, ping_time } = data;
-                        let names = name.split('-');
-                        let mainName = name;
-                        let symbol = names[names.length - 1];
-                        if (symbol !== 'BTC' && symbol !== 'ETH' && symbol !== 'SOL' && symbol !== 'DOGE' && symbol !== 'AVAX' && symbol !== 'XRP') {
-                            symbol = 'BTC';
-                        }
-                        else {
-                            mainName = names.slice(0, names.length - 1).join('-');
-                        }
-
-                        setPingTimes(pingTime => {
-                            _.set(pingTime, [mainName, symbol + "USD"], ping_time);
-                            _.set(pingTime, [mainName, symbol + "USDT"], ping_time);
-                            return { ...pingTime }
-                        });
-                    });
-
-                    return () => {
-                        socket.off('realtime_vosc', handleRealtimeVosc);
-                        socket.off('realtime_price', handleRealtimePrice);
-                        socket.off('bot_info_update', handlePositions);
-                        socket.off('ping');
-                    };
-                }, [socket,]);
-
-                useEffect(() => {
-                    let totalPnl = 0;
-                    let aum = 0;
-
-                    Object.keys(portfolios).forEach((key) => {
-                        aum += portfolios[key].initial;
-
-                        let symbols = Object.keys(portfolios[key].positions);
-                        symbols.forEach((symbol) => {
-                            let upnl = portfolios[key].positions[symbol].upnl;
-                            // console.log(upnl);
-                            if (isNaN(upnl)) {
-                                upnl = 0;
-                            }
-
-                            totalPnl += upnl;
-                        });
-                    });
-
-                    aum += totalPnl;
-
-                    setTotalPnl(totalPnl);
-                    setAum(aum);
-
-                }, [portfolios, priceData]);
-
-                useEffect(() => {
-                    updateJenkinsStatus();
-                    let interval = setInterval(() => {
-                        updateJenkinsStatus();
-                    }, 10000);
-
-                    return () => {
-                        clearInterval(interval);
-                    };
-                }, []);
-
-                const updateJenkinsStatus = async (status) => {
-                    //Fetch data from curl -u "nakara:1121756eb3f5e37e2a7be9006ef0ab19e1" https:/mkjk.ideractive.com/api/json
-                    const url = '/jenkins';
-                    const headers = {
-                        "Content-Type": "application/json"
-                    };
-                    const response = await fetch(url, {
-                        method: 'GET',
-                        headers: headers
-                    });
-
-                    const data = await response.json();
-                    // {"_class":"hudson.model.Hudson","assignedLabels":[{"name":"built-in"},{"name":"master"}],"mode":"NORMAL","nodeDescription":"the Jenkins controller's built-in node","nodeName":"","numExecutors":4,"description":null,"jobs":[{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"BuildX-Server-DEV","url":"https://mkjk.ideractive.com/job/BuildX-Server-DEV/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"BuildX-Server-Lambda-DEV","url":"https://mkjk.ideractive.com/job/BuildX-Server-Lambda-DEV/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"BuildX-Studio-DEV","url":"https://mkjk.ideractive.com/job/BuildX-Studio-DEV/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"ipone-b2b (staging)","url":"https://mkjk.ideractive.com/job/ipone-b2b%20(staging)/","color":"blue"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"ipone-b2c (staging)","url":"https://mkjk.ideractive.com/job/ipone-b2c%20(staging)/","color":"blue"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"KCC-E-Memo-BuildX-Server","url":"https://mkjk.ideractive.com/job/KCC-E-Memo-BuildX-Server/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"KCC-E-Memo-BuildX-Studio","url":"https://mkjk.ideractive.com/job/KCC-E-Memo-BuildX-Studio/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"KCC-E-Memo-BuildX-Studio-UAT","url":"https://mkjk.ideractive.com/job/KCC-E-Memo-BuildX-Studio-UAT/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"MASCI-BuildX-Studio","url":"https://mkjk.ideractive.com/job/MASCI-BuildX-Studio/","color":"blue"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"MASCI-E-Memo-BuildX-Server","url":"https://mkjk.ideractive.com/job/MASCI-E-Memo-BuildX-Server/","color":"blue"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"mini-line-app-production","url":"https://mkjk.ideractive.com/job/mini-line-app-production/","color":"red"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"mini-line-app-staging","url":"https://mkjk.ideractive.com/job/mini-line-app-staging/","color":"blue"},{"_class":"org.jenkinsci.plugins.workflow.job.WorkflowJob","name":"\ud83d\ude80 ipone-b2b (production)","url":"https://mkjk.ideractive.com/job/%F0%9F%9A%80%20ipone-b2b%20(production)/","color":"blue"}],"overallLoad":{},"primaryView":{"_class":"hudson.model.AllView","name":"all","url":"https://mkjk.ideractive.com/"},"quietingDown":false,"slaveAgentPort":50000,"unlabeledLoad":{},"useCrumbs":true,"useSecurity":true,"views":[{"_class":"hudson.model.AllView","name":"all","url":"https://mkjk.ideractive.com/"}]}
-
-                    setJenkinsStatus(data);
-                };
-
-                const renderRealtimePrice = (symbol) => {
-                    return (
-                        <div class="display-price" id={`${symbol}-price`}>
-                            <div class="symbol">{symbol}</div>
-                            <div class="price-vosc">{numeral(voscData[`${symbol}USDT`]).format('0,0.00')}%</div>
-                            <div class="price-number">{renderDigits(priceData[`${symbol}USDT`])}</div>
-                        </div>
-                    );
-                };
-
-                return <div>
-                    <div class="realtime-price">
-                        {renderRealtimePrice('BTC')}
-                        {renderRealtimePrice('ETH')}
-                        {renderRealtimePrice('SOL')}
-                        {renderRealtimePrice('DOGE')}
-                        {renderRealtimePrice('XRP')}
-
-                        <div class="display-price" id="upnl">
-                            <div class="symbol">Unrealize PnL</div>
-                            <div class="price-number">{renderDigits(totalPnl, true)}</div>
-                        </div>
-
-                        <div class="display-price" id="aum">
-                            <div class="symbol">AUM</div>
-                            <div class="price-number">{renderDigits(aum, true)}</div>
-                        </div>
-                    </div>
-
-                    <div class="portfolios">
-                        {Object.keys(portfolios).map((key) => {
-                            return <Portfolio portfolio={portfolios[key]} currentPrices={priceData} pingTimes={pingTimes[key]} />;
-                        })}
-                    </div>
-
-                    <div class="jenkins">
-                        <div class="jenkins-title">Jenkins Status</div>
-                        <div class="jenkins-jobs">
-                            {jenkinsStatus.jobs && jenkinsStatus.jobs.map((job) => {
-                                return <div class={`jenkins-job job-${job.color}`}>{job.name}</div>;
-                            })}
-                        </div>
-                    </div>
-                </div>;
-            };
-
-            const socket = io();
-            render(<RealTimeVosc socket={socket} />, document.getElementById('app'));
-            render(<Clock />, document.getElementById('clock'));
-            render(<HomeAssistantApp />, document.getElementById('homeassistant-status'));
-        </script>
+        const socket = io();
+        render(<Dashboard socket={socket} />, document.getElementById('app'));
+    </script>
 </body>
 
 </html>
