@@ -3,8 +3,8 @@
 cd /home/mekku/Documents/set-dashboard
 source .env/bin/activate
 export DISPLAY=:0
-python web.py  2>&1 > /dev/null &
-export APP_PID=$!
+python web.py  2>&1 > /dev/null 
+#export APP_PID=$!
 
 #sleep 5
 

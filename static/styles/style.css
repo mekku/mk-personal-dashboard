@@ -104,6 +104,33 @@ body {
     gap: 6px;
 }
 
+.top-left {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.quick-links {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.quick-links a {
+    text-decoration: none;
+    color: #cbe2f3;
+    border: 1px solid #35506a;
+    background: rgba(30, 47, 63, 0.7);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 0.66rem;
+}
+
+.quick-links a:hover {
+    border-color: #4a6f91;
+    color: #eef7ff;
+}
+
 .summary-card {
     background: var(--panel-soft);
     border: 1px solid #2b3a4a;
