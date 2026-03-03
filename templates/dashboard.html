@@ -208,41 +208,43 @@
         };
 
         const BotPanel = ({ portfolios, pingTimes, currentPrices }) => {
-            const rows = Object.keys(portfolios).map((botName) => {
+            const rows = [];
+
+            Object.keys(portfolios).forEach((botName) => {
                 const bot = portfolios[botName] || {};
                 const positionsBySymbol = bot.positions || {};
                 const symbols = Object.keys(positionsBySymbol);
 
-                let hasPosition = false;
-                let totalUpnl = 0;
-                let bestPingMinutes = Infinity;
-
                 symbols.forEach((symbol) => {
                     const symbolData = positionsBySymbol[symbol] || {};
-                    if ((symbolData.positions || []).length > 0) {
-                        hasPosition = true;
-                    }
-
-                    totalUpnl += symbolUpnl(symbolData, symbol, currentPrices);
-
+                    const hasPosition = (symbolData.positions || []).length > 0;
+                    const rowUpnl = symbolUpnl(symbolData, symbol, currentPrices);
                     const pingValue = _.get(pingTimes, [botName, symbol]) || symbolData.ping_time;
                     const ping = parsePingAge(pingValue);
-                    if (ping.minutes < bestPingMinutes) {
-                        bestPingMinutes = ping.minutes;
-                    }
+                    const isHealthy = Number.isFinite(ping.minutes) && ping.minutes < PING_ACTIVE_MINUTES;
+                    const orders = symbolData.orders || [];
+
+                    const tpOrder = orders.find((order) => {
+                        const type = String(order.type || '').toUpperCase();
+                        return type.includes('TAKE_PROFIT') || type === 'TP';
+                    });
+                    const slOrder = orders.find((order) => {
+                        const type = String(order.type || '').toUpperCase();
+                        return type === 'SL' || type.includes('STOP');
+                    });
+
+                    rows.push({
+                        key: `${botName}-${symbol}`,
+                        botName: botName.replace('VAR-BOT-', ''),
+                        symbol: symbol.replace('USDT', '').replace('USD', ''),
+                        hasPosition,
+                        isHealthy,
+                        total: Number(bot.balance || 0) + rowUpnl,
+                        positionPnl: rowUpnl,
+                        tp: tpOrder ? Number(tpOrder.triggerPrice || tpOrder.price || 0) : null,
+                        sl: slOrder ? Number(slOrder.triggerPrice || slOrder.price || 0) : null,
+                    });
                 });
-
-                const isHealthy = Number.isFinite(bestPingMinutes) && bestPingMinutes < PING_ACTIVE_MINUTES;
-                const total = Number(bot.balance || 0) + totalUpnl;
-
-                return {
-                    key: botName,
-                    botName: botName.replace('VAR-BOT-', ''),
-                    hasPosition,
-                    isHealthy,
-                    pingMinutes: bestPingMinutes,
-                    total,
-                };
             });
 
             rows.sort((a, b) => {
@@ -258,15 +260,25 @@
             return (
                 <section class="panel bot-layer">
                     <div class="panel-title">Bot Watchlist</div>
-                    <div class="panel-subtitle">all bots, position first</div>
+                    <div class="panel-subtitle">all bot + symbol, position first</div>
                     <div class="bot-list">
                         {rows.length === 0 && <div class="empty-state">No bot data</div>}
                         {rows.map((row) => (
                             <div class={`bot-row ${row.isHealthy ? 'running' : 'critical'}`} key={row.key}>
-                                <div class="bot-name">
-                                    {row.botName}
-                                    {row.hasPosition && <span class="bot-tag">POS</span>}
+                                <div class="bot-main">
+                                    <div class="bot-name">
+                                        {row.botName}
+                                        {row.hasPosition && <span class="bot-tag">POS</span>}
+                                    </div>
+                                    {row.hasPosition && (
+                                        <div class="bot-detail">
+                                            <span class={`bot-pos-pnl ${row.positionPnl >= 0 ? 'up' : 'down'}`}>PnL {formatValue(row.positionPnl)}</span>
+                                            <span class="bot-tpsl">TP {row.tp !== null ? formatValue(row.tp) : '-'}</span>
+                                            <span class="bot-tpsl">SL {row.sl !== null ? formatValue(row.sl) : '-'}</span>
+                                        </div>
+                                    )}
                                 </div>
+                                <div class="bot-symbol">{row.symbol}</div>
                                 <div class={`bot-health ${row.isHealthy ? 'ok' : 'bad'}`}>
                                     {row.isHealthy ? 'OK' : 'CHECK'}
                                 </div>
