@@ -86,7 +86,13 @@
         const PING_ACTIVE_MINUTES = 5;
 
         const isJenkinsRunning = (color = '') => color.endsWith('_anime');
-        const isJenkinsProblem = (color = '') => ['red', 'red_anime', 'yellow', 'aborted', 'aborted_anime', 'notbuilt'].includes(color);
+        const isJenkinsNormal = (color = '') => color === 'blue';
+        const isJenkinsProblem = (color = '') => {
+            if (isJenkinsNormal(color) || isJenkinsRunning(color)) {
+                return false;
+            }
+            return ['red', 'yellow', 'aborted', 'notbuilt', 'disabled', 'grey'].includes(color);
+        };
 
         const formatValue = (value, round = false) => {
             const numeric = Number(value || 0);
