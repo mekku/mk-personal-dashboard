@@ -201,6 +201,8 @@ futures = {}
 port_loading = False
 website_db_path = os.path.join(os.path.dirname(__file__), "logs", "website_monitor.db")
 BOT_OFFLINE_SECONDS = 60
+BOT_MONITOR_GRACE_SECONDS = 180
+bot_monitor_started_at = datetime.now()
 
 
 def init_website_monitor_db():
@@ -293,7 +295,7 @@ def log_website_check(url, checked_at, is_up, status_code, latency_ms, error):
     )
 
     # Transition: UP -> DOWN, open incident
-    if (last_is_up is True or last_is_up is None) and not is_up:
+    if last_is_up is True and not is_up:
         cur.execute(
             """
             INSERT INTO website_incidents (url, down_at)
@@ -488,6 +490,7 @@ def log_bot_check(bot_name, checked_at, is_up, ping_age_sec):
 def run_bot_checks(should_log=True):
     now = datetime.now()
     results = []
+    elapsed_since_start = int((now - bot_monitor_started_at).total_seconds())
 
     for bot_name in get_bot_targets():
         last_ping = ping_time.get(bot_name)
@@ -496,8 +499,9 @@ def run_bot_checks(should_log=True):
             ping_age_sec = int((now - last_ping).total_seconds())
 
         is_up = ping_age_sec is not None and ping_age_sec < BOT_OFFLINE_SECONDS
+        in_grace = ping_age_sec is None and elapsed_since_start < BOT_MONITOR_GRACE_SECONDS
 
-        if should_log:
+        if should_log and not in_grace:
             log_bot_check(bot_name, now, is_up, ping_age_sec)
 
         results.append(
@@ -505,6 +509,7 @@ def run_bot_checks(should_log=True):
                 "bot_name": bot_name,
                 "is_up": is_up,
                 "ping_age_sec": ping_age_sec,
+                "in_grace": in_grace,
                 "last_ping": last_ping.strftime("%Y-%m-%d %H:%M:%S") if last_ping is not None else None,
                 "checked_at": now.strftime("%Y-%m-%d %H:%M:%S"),
             }
