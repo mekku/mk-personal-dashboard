@@ -252,6 +252,21 @@ body {
     min-width: 0;
 }
 
+.bot-foot {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    align-items: stretch;
+}
+
+.bot-detail-col {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
 .bot-inline {
     display: flex;
     align-items: center;
@@ -304,6 +319,30 @@ body {
     font-weight: 700;
     white-space: nowrap;
     font-size: 0.64rem;
+}
+
+.bot-pnl-box {
+    min-width: 82px;
+    border: 1px solid #4a6078;
+    border-radius: 8px;
+    background: rgba(17, 31, 43, 0.85);
+    padding: 4px 6px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.bot-pnl-label {
+    font-size: 0.56rem;
+    color: #9db3c6;
+    line-height: 1;
+}
+
+.bot-pnl-value {
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.2;
 }
 
 .jenkins-head {

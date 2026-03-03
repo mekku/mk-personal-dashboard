@@ -317,29 +317,37 @@
                                         <span class="bot-name">{row.botName}</span>
                                         <span class="bot-symbol">{row.symbol}</span>
                                         {row.hasPosition && <span class="bot-tag">POS</span>}
-                                        <span class={`bot-pos-pnl ${row.positionPnl >= 0 ? 'up' : 'down'}`}>PnL {formatValue(row.positionPnl)}</span>
                                     </div>
                                     <span class="bot-total">{'$'}{formatValue(row.total)}</span>
                                 </div>
 
-                                {row.tp !== null && (
-                                    <div class="bot-line">
-                                        <div class="bot-inline">
-                                            <span class="bot-tpsl">TP {formatValue(row.tp)}</span>
-                                            <span class={`bot-forecast ${row.tpForecast !== null && row.tpForecast >= 0 ? 'up' : 'down'}`}>
-                                                ({row.tpForecast !== null ? formatValue(row.tpForecast) : '-'}, {row.tpForecastPct !== null ? formatPercent(row.tpForecastPct) : '-'}%)
-                                            </span>
+                                {row.hasPosition && (
+                                    <div class="bot-foot">
+                                        <div class="bot-detail-col">
+                                            {row.tp !== null && (
+                                                <div class="bot-line">
+                                                    <div class="bot-inline">
+                                                        <span class="bot-tpsl">TP {formatValue(row.tp)}</span>
+                                                        <span class={`bot-forecast ${row.tpForecast !== null && row.tpForecast >= 0 ? 'up' : 'down'}`}>
+                                                            ({row.tpForecast !== null ? formatValue(row.tpForecast) : '-'}, {row.tpForecastPct !== null ? formatPercent(row.tpForecastPct) : '-'}%)
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            {row.sl !== null && (
+                                                <div class="bot-line">
+                                                    <div class="bot-inline">
+                                                        <span class="bot-tpsl">SL {formatValue(row.sl)}</span>
+                                                        <span class={`bot-forecast ${row.slForecast !== null && row.slForecast >= 0 ? 'up' : 'down'}`}>
+                                                            ({row.slForecast !== null ? formatValue(row.slForecast) : '-'}, {row.slForecastPct !== null ? formatPercent(row.slForecastPct) : '-'}%)
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
-                                    </div>
-                                )}
-
-                                {row.sl !== null && (
-                                    <div class="bot-line">
-                                        <div class="bot-inline">
-                                            <span class="bot-tpsl">SL {formatValue(row.sl)}</span>
-                                            <span class={`bot-forecast ${row.slForecast !== null && row.slForecast >= 0 ? 'up' : 'down'}`}>
-                                                ({row.slForecast !== null ? formatValue(row.slForecast) : '-'}, {row.slForecastPct !== null ? formatPercent(row.slForecastPct) : '-'}%)
-                                            </span>
+                                        <div class={`bot-pnl-box ${row.positionPnl >= 0 ? 'up' : 'down'}`}>
+                                            <div class="bot-pnl-label">PNL</div>
+                                            <div class="bot-pnl-value">{formatValue(row.positionPnl)}</div>
                                         </div>
                                     </div>
                                 )}
