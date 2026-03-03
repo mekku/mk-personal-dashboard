@@ -54,7 +54,7 @@
 <body>
     <div class="grid-status">
         {% for host in ping_time %}
-        <div class="status status-{{status[host]}}">
+        <div class="status status-{{status[host]}} status-{{host}}">
             <div class="host">{{host|replace("VAR-BOT-", "")}}</div>
             <div class="status">{{status[host]}}</div>
             <div class="ping-time">{{ping_time[host]}}</div>
