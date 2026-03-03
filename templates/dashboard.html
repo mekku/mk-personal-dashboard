@@ -319,22 +319,28 @@
 
                                 <div class="bot-line">
                                     <div class="bot-inline">
-                                        <span class="bot-tpsl">TP {row.tp !== null ? formatValue(row.tp) : '-'}</span>
-                                        <span class={`bot-forecast ${row.tpForecast !== null && row.tpForecast >= 0 ? 'up' : 'down'}`}>
-                                            ({row.tpForecast !== null ? formatValue(row.tpForecast) : '-'})
-                                        </span>
+                                        {row.tp !== null && (
+                                            <>
+                                                <span class="bot-tpsl">TP {formatValue(row.tp)}</span>
+                                                <span class={`bot-forecast ${row.tpForecast !== null && row.tpForecast >= 0 ? 'up' : 'down'}`}>
+                                                    ({row.tpForecast !== null ? formatValue(row.tpForecast) : '-'})
+                                                </span>
+                                            </>
+                                        )}
                                     </div>
                                     <span class="bot-total">AUM {formatValue(row.total)}</span>
                                 </div>
 
-                                <div class="bot-line">
-                                    <div class="bot-inline">
-                                        <span class="bot-tpsl">SL {row.sl !== null ? formatValue(row.sl) : '-'}</span>
-                                        <span class={`bot-forecast ${row.slForecast !== null && row.slForecast >= 0 ? 'up' : 'down'}`}>
-                                            ({row.slForecast !== null ? formatValue(row.slForecast) : '-'})
-                                        </span>
+                                {row.sl !== null && (
+                                    <div class="bot-line">
+                                        <div class="bot-inline">
+                                            <span class="bot-tpsl">SL {formatValue(row.sl)}</span>
+                                            <span class={`bot-forecast ${row.slForecast !== null && row.slForecast >= 0 ? 'up' : 'down'}`}>
+                                                ({row.slForecast !== null ? formatValue(row.slForecast) : '-'})
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
+                                )}
                             </div>
                         ))}
                     </div>
@@ -399,8 +405,8 @@
                             <div class={`website-row ${site.is_up ? 'up' : 'down'}`} key={site.url}>
                                 <div class="website-name">{site.url.replace(/^https?:\/\//, '')}</div>
                                 <div class="website-meta">
-                                    <span>{site.status_code || 'ERR'}</span>
-                                    <span>{site.latency_ms}ms</span>
+                                    <span class="website-code">{site.status_code || 'ERR'}</span>
+                                    <span class="website-latency">{site.latency_ms}ms</span>
                                 </div>
                             </div>
                         ))}

@@ -426,6 +426,23 @@ body {
     display: flex;
     gap: 8px;
     white-space: nowrap;
+    align-items: center;
+}
+
+.website-code {
+    display: inline-block;
+    min-width: 46px;
+    text-align: center;
+    font-weight: 700;
+    border: 1px solid #4a6078;
+    border-radius: 6px;
+    padding: 1px 6px;
+    background: rgba(23, 36, 49, 0.8);
+    color: #e6f0fa;
+}
+
+.website-latency {
+    color: #9eb2c6;
 }
 
 .empty-state {
