@@ -200,6 +200,7 @@ ping_time = {}
 futures = {}
 port_loading = False
 website_db_path = os.path.join(os.path.dirname(__file__), "logs", "website_monitor.db")
+BOT_OFFLINE_SECONDS = 60
 
 
 def init_website_monitor_db():
@@ -223,6 +224,28 @@ def init_website_monitor_db():
         CREATE TABLE IF NOT EXISTS website_incidents (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             url TEXT NOT NULL,
+            down_at TEXT NOT NULL,
+            up_at TEXT,
+            duration_sec INTEGER
+        )
+        """
+    )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS bot_checks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            bot_name TEXT NOT NULL,
+            checked_at TEXT NOT NULL,
+            is_up INTEGER NOT NULL,
+            ping_age_sec INTEGER
+        )
+        """
+    )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS bot_incidents (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            bot_name TEXT NOT NULL,
             down_at TEXT NOT NULL,
             up_at TEXT,
             duration_sec INTEGER
@@ -270,7 +293,7 @@ def log_website_check(url, checked_at, is_up, status_code, latency_ms, error):
     )
 
     # Transition: UP -> DOWN, open incident
-    if last_is_up is True and not is_up:
+    if (last_is_up is True or last_is_up is None) and not is_up:
         cur.execute(
             """
             INSERT INTO website_incidents (url, down_at)
@@ -370,6 +393,192 @@ def get_monthly_uptime_report(months=6):
     incidents = [
         {
             "url": r[0],
+            "down_at": r[1],
+            "up_at": r[2],
+            "duration_sec": r[3],
+        }
+        for r in cur.fetchall()
+    ]
+
+    conn.close()
+
+    return {
+        "months": month_keys,
+        "report": report,
+        "incidents": incidents,
+    }
+
+
+def get_bot_targets():
+    return sorted({futures_keys[f]["name"] for f in futures_keys})
+
+
+def log_bot_check(bot_name, checked_at, is_up, ping_age_sec):
+    conn = website_db_connect()
+    cur = conn.cursor()
+
+    cur.execute(
+        """
+        SELECT is_up
+        FROM bot_checks
+        WHERE bot_name = ?
+        ORDER BY id DESC
+        LIMIT 1
+        """,
+        (bot_name,),
+    )
+    last_row = cur.fetchone()
+    last_is_up = bool(last_row[0]) if last_row is not None else None
+
+    cur.execute(
+        """
+        INSERT INTO bot_checks (bot_name, checked_at, is_up, ping_age_sec)
+        VALUES (?, ?, ?, ?)
+        """,
+        (
+            bot_name,
+            checked_at.strftime("%Y-%m-%d %H:%M:%S"),
+            1 if is_up else 0,
+            ping_age_sec,
+        ),
+    )
+
+    if (last_is_up is True or last_is_up is None) and not is_up:
+        cur.execute(
+            """
+            INSERT INTO bot_incidents (bot_name, down_at)
+            VALUES (?, ?)
+            """,
+            (bot_name, checked_at.strftime("%Y-%m-%d %H:%M:%S")),
+        )
+
+    if last_is_up is False and is_up:
+        cur.execute(
+            """
+            SELECT id, down_at
+            FROM bot_incidents
+            WHERE bot_name = ? AND up_at IS NULL
+            ORDER BY id DESC
+            LIMIT 1
+            """,
+            (bot_name,),
+        )
+        incident = cur.fetchone()
+        if incident is not None:
+            incident_id, down_at_str = incident
+            down_at = datetime.strptime(down_at_str, "%Y-%m-%d %H:%M:%S")
+            duration_sec = int((checked_at - down_at).total_seconds())
+            cur.execute(
+                """
+                UPDATE bot_incidents
+                SET up_at = ?, duration_sec = ?
+                WHERE id = ?
+                """,
+                (
+                    checked_at.strftime("%Y-%m-%d %H:%M:%S"),
+                    duration_sec,
+                    incident_id,
+                ),
+            )
+
+    conn.commit()
+    conn.close()
+
+
+def run_bot_checks(should_log=True):
+    now = datetime.now()
+    results = []
+
+    for bot_name in get_bot_targets():
+        last_ping = ping_time.get(bot_name)
+        ping_age_sec = None
+        if last_ping is not None:
+            ping_age_sec = int((now - last_ping).total_seconds())
+
+        is_up = ping_age_sec is not None and ping_age_sec < BOT_OFFLINE_SECONDS
+
+        if should_log:
+            log_bot_check(bot_name, now, is_up, ping_age_sec)
+
+        results.append(
+            {
+                "bot_name": bot_name,
+                "is_up": is_up,
+                "ping_age_sec": ping_age_sec,
+                "last_ping": last_ping.strftime("%Y-%m-%d %H:%M:%S") if last_ping is not None else None,
+                "checked_at": now.strftime("%Y-%m-%d %H:%M:%S"),
+            }
+        )
+
+    return results
+
+
+def bot_monitor_loop():
+    while True:
+        try:
+            run_bot_checks(should_log=True)
+        except Exception as e:
+            logger.error(f"Bot monitor loop failed: {e}")
+        time.sleep(60)
+
+
+def get_monthly_bot_uptime_report(months=6):
+    now = datetime.now()
+    month_points = []
+    for i in range(months):
+        point = (now.replace(day=1) - timedelta(days=31 * i)).replace(day=1)
+        month_points.append(point)
+
+    month_points = sorted({p.strftime("%Y-%m"): p for p in month_points}.values())
+    month_keys = [p.strftime("%Y-%m") for p in month_points]
+
+    conn = website_db_connect()
+    cur = conn.cursor()
+
+    report = []
+    for bot_name in get_bot_targets():
+        month_stats = []
+        for month_key in month_keys:
+            cur.execute(
+                """
+                SELECT
+                    COUNT(*) AS total_count,
+                    SUM(CASE WHEN is_up = 1 THEN 1 ELSE 0 END) AS up_count
+                FROM bot_checks
+                WHERE bot_name = ? AND strftime('%Y-%m', checked_at) = ?
+                """,
+                (bot_name, month_key),
+            )
+            total_count, up_count = cur.fetchone()
+            total_count = total_count or 0
+            up_count = up_count or 0
+            uptime_pct = round((up_count / total_count) * 100, 2) if total_count > 0 else None
+            month_stats.append(
+                {
+                    "month": month_key,
+                    "uptime_pct": uptime_pct,
+                    "checks": total_count,
+                }
+            )
+
+        report.append(
+            {
+                "bot_name": bot_name,
+                "months": month_stats,
+            }
+        )
+
+    cur.execute(
+        """
+        SELECT bot_name, down_at, up_at, duration_sec
+        FROM bot_incidents
+        ORDER BY down_at DESC
+        LIMIT 200
+        """
+    )
+    incidents = [
+        {
+            "bot_name": r[0],
             "down_at": r[1],
             "up_at": r[2],
             "duration_sec": r[3],
@@ -910,6 +1119,12 @@ def website_report():
     report_data = get_monthly_uptime_report(months=6)
     return render_template("website_report.html", report_data=report_data)
 
+
+@app.route("/bot_report")
+def bot_report():
+    report_data = get_monthly_bot_uptime_report(months=6)
+    return render_template("bot_report.html", report_data=report_data)
+
 @app.route("/abt_status")
 def abt_status():
     global ping_time
@@ -976,6 +1191,11 @@ if __name__ == "__main__":
     website_monitor_thread = Thread(target=website_monitor_loop)
     website_monitor_thread.daemon = True
     website_monitor_thread.start()
+
+    # Start bot monitor thread
+    bot_monitor_thread = Thread(target=bot_monitor_loop)
+    bot_monitor_thread.daemon = True
+    bot_monitor_thread.start()
 
     logger.info("Running the socket server...")
     # Open chrome browser when the server starts 5 seconds later
