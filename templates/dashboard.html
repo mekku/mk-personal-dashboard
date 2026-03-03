@@ -85,6 +85,11 @@
             return numeral(numeric).format('0,0');
         };
 
+        const formatPercent = (value) => {
+            const numeric = Number(value || 0);
+            return numeral(numeric).format('0,0.00');
+        };
+
         const renderDigits = (value) => {
             const strValue = formatValue(value);
             return strValue.split('').map((digit, idx) => {
@@ -283,6 +288,8 @@
                         sl: slOrder ? Number(slOrder.triggerPrice || slOrder.price || 0) : null,
                         tpForecast: tpOrder ? symbolPnlAtPrice(symbolData, symbol, Number(tpOrder.triggerPrice || tpOrder.price || 0)) : null,
                         slForecast: slOrder ? symbolPnlAtPrice(symbolData, symbol, Number(slOrder.triggerPrice || slOrder.price || 0)) : null,
+                        tpForecastPct: tpOrder ? ((symbolPnlAtPrice(symbolData, symbol, Number(tpOrder.triggerPrice || tpOrder.price || 0)) || 0) / (Number(bot.balance || 0) || 1)) * 100 : null,
+                        slForecastPct: slOrder ? ((symbolPnlAtPrice(symbolData, symbol, Number(slOrder.triggerPrice || slOrder.price || 0)) || 0) / (Number(bot.balance || 0) || 1)) * 100 : null,
                     });
                 });
             });
@@ -312,31 +319,26 @@
                                         {row.hasPosition && <span class="bot-tag">POS</span>}
                                         <span class={`bot-pos-pnl ${row.positionPnl >= 0 ? 'up' : 'down'}`}>PnL {formatValue(row.positionPnl)}</span>
                                     </div>
-                                    <span class={`bot-health ${row.isHealthy ? 'ok' : 'bad'}`}>
-                                        {row.isHealthy ? 'OK' : 'CHECK'}
-                                    </span>
+                                    <span class="bot-total">{'$'}{formatValue(row.total)}</span>
                                 </div>
 
-                                <div class="bot-line">
-                                    <div class="bot-inline">
-                                        {row.tp !== null && (
-                                            <span class="bot-inline">
-                                                <span class="bot-tpsl">TP {formatValue(row.tp)}</span>
-                                                <span class={`bot-forecast ${row.tpForecast !== null && row.tpForecast >= 0 ? 'up' : 'down'}`}>
-                                                    ({row.tpForecast !== null ? formatValue(row.tpForecast) : '-'})
-                                                </span>
+                                {row.tp !== null && (
+                                    <div class="bot-line">
+                                        <div class="bot-inline">
+                                            <span class="bot-tpsl">TP {formatValue(row.tp)}</span>
+                                            <span class={`bot-forecast ${row.tpForecast !== null && row.tpForecast >= 0 ? 'up' : 'down'}`}>
+                                                ({row.tpForecast !== null ? formatValue(row.tpForecast) : '-'}, {row.tpForecastPct !== null ? formatPercent(row.tpForecastPct) : '-'}%)
                                             </span>
-                                        )}
+                                        </div>
                                     </div>
-                                    <span class="bot-total">AUM {formatValue(row.total)}</span>
-                                </div>
+                                )}
 
                                 {row.sl !== null && (
                                     <div class="bot-line">
                                         <div class="bot-inline">
                                             <span class="bot-tpsl">SL {formatValue(row.sl)}</span>
                                             <span class={`bot-forecast ${row.slForecast !== null && row.slForecast >= 0 ? 'up' : 'down'}`}>
-                                                ({row.slForecast !== null ? formatValue(row.slForecast) : '-'})
+                                                ({row.slForecast !== null ? formatValue(row.slForecast) : '-'}, {row.slForecastPct !== null ? formatPercent(row.slForecastPct) : '-'}%)
                                             </span>
                                         </div>
                                     </div>

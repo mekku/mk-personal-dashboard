@@ -191,6 +191,8 @@ website_targets = [
     "https://intelligence.masci.or.th",
     "https://studio.buildx.app",
     "https://api.buildx.app/status",
+    "https://staffcoffeeapp.vercel.app",
+    "https://occocoffeeapp.vercel.app",
 ]
 
 ping_time = {}
