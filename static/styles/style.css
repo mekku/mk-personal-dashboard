@@ -221,7 +221,7 @@ body {
     background: #101a23;
     padding: 4px 6px;
     display: grid;
-    grid-template-columns: 2fr 0.7fr 0.8fr 1fr 0.8fr;
+    grid-template-columns: 1.8fr 0.8fr 1fr;
     gap: 6px;
     align-items: center;
     font-size: 0.68rem;
@@ -244,15 +244,40 @@ body {
     white-space: nowrap;
 }
 
-.bot-symbol,
-.bot-ping,
-.bot-orders {
-    color: #a9bdcc;
-}
-
-.bot-upnl {
+.bot-total {
     text-align: right;
     font-weight: 700;
+    color: #dbe7f3;
+}
+
+.bot-tag {
+    margin-left: 6px;
+    font-size: 0.55rem;
+    color: #baf2d8;
+    border: 1px solid #2f7a59;
+    border-radius: 999px;
+    padding: 1px 5px;
+    vertical-align: middle;
+}
+
+.bot-health {
+    font-size: 0.58rem;
+    text-align: center;
+    border-radius: 999px;
+    padding: 2px 4px;
+    border: 1px solid transparent;
+}
+
+.bot-health.ok {
+    color: #b7f6dc;
+    border-color: #2f7a59;
+    background: rgba(38, 194, 129, 0.15);
+}
+
+.bot-health.bad {
+    color: #ffd0d6;
+    border-color: #7c2f3a;
+    background: rgba(255, 91, 110, 0.15);
 }
 
 .jenkins-head {
@@ -370,11 +395,7 @@ body {
     }
 
     .bot-row {
-        grid-template-columns: 1.4fr 0.8fr 0.8fr 1fr;
-    }
-
-    .bot-orders {
-        display: none;
+        grid-template-columns: 1.7fr 0.8fr 1fr;
     }
 }
 
@@ -405,11 +426,7 @@ body {
     }
 
     .bot-row {
-        grid-template-columns: 1.6fr 0.7fr 0.7fr 1fr;
-    }
-
-    .bot-orders {
-        display: none;
+        grid-template-columns: 1.5fr 0.7fr 1fr;
     }
 
     .charts-layer {

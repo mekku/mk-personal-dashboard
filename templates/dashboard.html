@@ -208,41 +208,49 @@
         };
 
         const BotPanel = ({ portfolios, pingTimes, currentPrices }) => {
-            const rows = [];
-
-            Object.keys(portfolios).forEach((botName) => {
+            const rows = Object.keys(portfolios).map((botName) => {
                 const bot = portfolios[botName] || {};
                 const positionsBySymbol = bot.positions || {};
+                const symbols = Object.keys(positionsBySymbol);
 
-                Object.keys(positionsBySymbol).forEach((symbol) => {
+                let hasPosition = false;
+                let totalUpnl = 0;
+                let bestPingMinutes = Infinity;
+
+                symbols.forEach((symbol) => {
                     const symbolData = positionsBySymbol[symbol] || {};
-                    const pingValue = _.get(pingTimes, [botName, symbol]) || symbolData.ping_time;
-                    const ping = parsePingAge(pingValue);
-                    const hasOrders = (symbolData.orders || []).length > 0;
-                    const hasPosition = (symbolData.positions || []).length > 0;
-                    const isRunning = hasOrders || hasPosition;
-                    const isIssue = !ping.isActive;
-
-                    if (!isRunning && !isIssue) {
-                        return;
+                    if ((symbolData.positions || []).length > 0) {
+                        hasPosition = true;
                     }
 
-                    rows.push({
-                        key: `${botName}-${symbol}`,
-                        botName: botName.replace('VAR-BOT-', ''),
-                        symbol: symbol.replace('USDT', '').replace('USD', ''),
-                        ping,
-                        isRunning,
-                        isIssue,
-                        orders: (symbolData.orders || []).length,
-                        upnl: symbolUpnl(symbolData, symbol, currentPrices),
-                    });
+                    totalUpnl += symbolUpnl(symbolData, symbol, currentPrices);
+
+                    const pingValue = _.get(pingTimes, [botName, symbol]) || symbolData.ping_time;
+                    const ping = parsePingAge(pingValue);
+                    if (ping.minutes < bestPingMinutes) {
+                        bestPingMinutes = ping.minutes;
+                    }
                 });
+
+                const isHealthy = Number.isFinite(bestPingMinutes) && bestPingMinutes < PING_ACTIVE_MINUTES;
+                const total = Number(bot.balance || 0) + totalUpnl;
+
+                return {
+                    key: botName,
+                    botName: botName.replace('VAR-BOT-', ''),
+                    hasPosition,
+                    isHealthy,
+                    pingMinutes: bestPingMinutes,
+                    total,
+                };
             });
 
             rows.sort((a, b) => {
-                if (a.isIssue !== b.isIssue) {
-                    return a.isIssue ? -1 : 1;
+                if (a.hasPosition !== b.hasPosition) {
+                    return a.hasPosition ? -1 : 1;
+                }
+                if (a.isHealthy !== b.isHealthy) {
+                    return a.isHealthy ? 1 : -1;
                 }
                 return a.botName.localeCompare(b.botName);
             });
@@ -250,16 +258,19 @@
             return (
                 <section class="panel bot-layer">
                     <div class="panel-title">Bot Watchlist</div>
-                    <div class="panel-subtitle">showing only running or abnormal</div>
+                    <div class="panel-subtitle">all bots, position first</div>
                     <div class="bot-list">
-                        {rows.length === 0 && <div class="empty-state">No active or abnormal bot</div>}
+                        {rows.length === 0 && <div class="empty-state">No bot data</div>}
                         {rows.map((row) => (
-                            <div class={`bot-row ${row.isIssue ? 'critical' : 'running'}`} key={row.key}>
-                                <div class="bot-name">{row.botName}</div>
-                                <div class="bot-symbol">{row.symbol}</div>
-                                <div class="bot-ping">{Number.isFinite(row.ping.minutes) ? `${row.ping.minutes}m` : '--'}</div>
-                                <div class={`bot-upnl ${row.upnl >= 0 ? 'up' : 'down'}`}>{formatValue(row.upnl)}</div>
-                                <div class="bot-orders">{row.orders} orders</div>
+                            <div class={`bot-row ${row.isHealthy ? 'running' : 'critical'}`} key={row.key}>
+                                <div class="bot-name">
+                                    {row.botName}
+                                    {row.hasPosition && <span class="bot-tag">POS</span>}
+                                </div>
+                                <div class={`bot-health ${row.isHealthy ? 'ok' : 'bad'}`}>
+                                    {row.isHealthy ? 'OK' : 'CHECK'}
+                                </div>
+                                <div class="bot-total">{formatValue(row.total)}</div>
                             </div>
                         ))}
                     </div>
