@@ -202,8 +202,13 @@ port_loading = False
 website_db_path = os.path.join(os.path.dirname(__file__), "logs", "website_monitor.db")
 BOT_OFFLINE_SECONDS = 60
 BOT_MONITOR_GRACE_SECONDS = 180
-EXCLUDED_BOT_STATUS_NAMES = {"mk-dashboard"}
+EXCLUDED_BOT_STATUS_KEYWORDS = ("mk-dashboard",)
 bot_monitor_started_at = datetime.now()
+
+
+def is_excluded_bot(name: str) -> bool:
+    lowered = str(name).lower()
+    return any(keyword in lowered for keyword in EXCLUDED_BOT_STATUS_KEYWORDS)
 
 
 def init_website_monitor_db():
@@ -703,10 +708,21 @@ def on_message(client, userdata, msg):
         socketio.emit("realtime_vosc", realtime_vosc)
     if msg.topic == "ping" or msg.topic == "hello":
         payload = eval(msg.payload)
-        
+
         name = payload["name"].replace("bot-var/", "")
+        if is_excluded_bot(name):
+            return
+
         ping_time[name] = datetime.now()
-        socketio.emit("ping", json.dumps({"name": name, "ping_time": ping_time[name].strftime("%Y-%m-%d %H:%M:%S")}))
+        socketio.emit(
+            "ping",
+            json.dumps(
+                {
+                    "name": name,
+                    "ping_time": ping_time[name].strftime("%Y-%m-%d %H:%M:%S"),
+                }
+            ),
+        )
 
 def mqtt_thread():
     logger.info("Starting MQTT client...")
@@ -1055,12 +1071,16 @@ def dashboard():
     initial_ping_time = {}
     for f in futures_keys:
         name = futures_keys[f]["name"]
+        if is_excluded_bot(name):
+            continue
         if name in ping_time and ping_time[name] is not None:
             initial_ping_time[name] = ping_time[name].strftime("%Y-%m-%d %H:%M:%S")
         else:
             initial_ping_time[name] = None
 
     for name in ping_time:
+        if is_excluded_bot(name):
+            continue
         if name not in initial_ping_time:
             if ping_time[name] is not None:
                 initial_ping_time[name] = ping_time[name].strftime("%Y-%m-%d %H:%M:%S")
@@ -1135,7 +1155,11 @@ def bot_report():
 def abt_status():
     global ping_time
     status = {}
-    filtered_ping_time = {k: v for k, v in ping_time.items() if "ABT" in k}
+    filtered_ping_time = {
+        k: v
+        for k, v in ping_time.items()
+        if "ABT" in k and not is_excluded_bot(k)
+    }
     for f in ping_time:
         status[f] = "offline"
         if f in ping_time:
@@ -1147,32 +1171,33 @@ def abt_status():
 @app.route("/bot_status")
 def ping_status():
     global ping_time
-    # Remove excluded bots from ping_time before building status
-    for name in list(ping_time.keys()):
-        if name in EXCLUDED_BOT_STATUS_NAMES:
-            ping_time.pop(name, None)
+    visible_ping_time = {
+        name: ts for name, ts in ping_time.items() if not is_excluded_bot(name)
+    }
 
     status = {}
-    for f in ping_time:
+    for f in visible_ping_time:
         status[f] = "offline"
-        if ping_time[f] is not None:
-            if (datetime.now() - ping_time[f]).seconds < 60:
+        if visible_ping_time[f] is not None:
+            if (datetime.now() - visible_ping_time[f]).seconds < 60:
                 status[f] = "online"
                 
     # Add missing bots
     for f in futures_keys:
         name = futures_keys[f]["name"]
-        if name in EXCLUDED_BOT_STATUS_NAMES:
+        if is_excluded_bot(name):
             continue
-        if name not in ping_time and name not in status:
-            ping_time[name] = None
+        if name not in visible_ping_time and name not in status:
+            visible_ping_time[name] = None
             status[name] = "offline"
             
     # Sort by name
     sorted_status = dict(sorted(status.items(), key=lambda item: item[0]))
-    ping_time = dict(sorted(ping_time.items(), key=lambda item: item[0]))
+    visible_ping_time = dict(sorted(visible_ping_time.items(), key=lambda item: item[0]))
                 
-    return render_template("ping_status.html", ping_time=ping_time, status=sorted_status)
+    return render_template(
+        "ping_status.html", ping_time=visible_ping_time, status=sorted_status
+    )
 
 if __name__ == "__main__":    
 
