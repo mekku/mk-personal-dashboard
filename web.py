@@ -202,6 +202,7 @@ port_loading = False
 website_db_path = os.path.join(os.path.dirname(__file__), "logs", "website_monitor.db")
 BOT_OFFLINE_SECONDS = 60
 BOT_MONITOR_GRACE_SECONDS = 180
+EXCLUDED_BOT_STATUS_NAMES = {"mk-dashboard"}
 bot_monitor_started_at = datetime.now()
 
 
@@ -1146,16 +1147,23 @@ def abt_status():
 @app.route("/bot_status")
 def ping_status():
     global ping_time
+    # Remove excluded bots from ping_time before building status
+    for name in list(ping_time.keys()):
+        if name in EXCLUDED_BOT_STATUS_NAMES:
+            ping_time.pop(name, None)
+
     status = {}
     for f in ping_time:
         status[f] = "offline"
-        if f in ping_time and ping_time[f] is not None:
+        if ping_time[f] is not None:
             if (datetime.now() - ping_time[f]).seconds < 60:
                 status[f] = "online"
                 
     # Add missing bots
     for f in futures_keys:
         name = futures_keys[f]["name"]
+        if name in EXCLUDED_BOT_STATUS_NAMES:
+            continue
         if name not in ping_time and name not in status:
             ping_time[name] = None
             status[name] = "offline"
