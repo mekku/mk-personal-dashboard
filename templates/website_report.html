@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Monitor Report</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #0f141b;
+            color: #d9e4ee;
+            padding: 18px;
+        }
+
+        h1,
+        h2 {
+            margin: 0 0 12px 0;
+        }
+
+        .section {
+            margin-bottom: 24px;
+            background: #16212d;
+            border: 1px solid #2b3c4e;
+            border-radius: 10px;
+            padding: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th,
+        td {
+            border-bottom: 1px solid #2b3c4e;
+            padding: 8px 6px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        th {
+            color: #9fb4c9;
+            font-weight: bold;
+        }
+
+        .url {
+            max-width: 340px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .ok {
+            color: #77f0b3;
+            font-weight: bold;
+        }
+
+        .warn {
+            color: #ffd39a;
+            font-weight: bold;
+        }
+
+        .bad {
+            color: #ff9ea9;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="section">
+        <h1>Website Monthly Uptime Report</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Website</th>
+                    {% for month in report_data.months %}
+                    <th>{{ month }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in report_data.report %}
+                <tr>
+                    <td class="url">{{ row.url }}</td>
+                    {% for month_data in row.months %}
+                    <td>
+                        {% if month_data.uptime_pct is none %}
+                        -
+                        {% elif month_data.uptime_pct >= 99.0 %}
+                        <span class="ok">{{ month_data.uptime_pct }}%</span>
+                        {% elif month_data.uptime_pct >= 95.0 %}
+                        <span class="warn">{{ month_data.uptime_pct }}%</span>
+                        {% else %}
+                        <span class="bad">{{ month_data.uptime_pct }}%</span>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Incident Timeline (Latest 200)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Website</th>
+                    <th>Down At</th>
+                    <th>Recovered At</th>
+                    <th>Duration</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for event in report_data.incidents %}
+                <tr>
+                    <td class="url">{{ event.url }}</td>
+                    <td class="bad">{{ event.down_at }}</td>
+                    <td>{% if event.up_at %}<span class="ok">{{ event.up_at }}</span>{% else %}<span class="warn">OPEN</span>{% endif %}</td>
+                    <td>
+                        {% if event.duration_sec %}
+                        {{ (event.duration_sec // 3600) }}h {{ ((event.duration_sec % 3600) // 60) }}m
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>

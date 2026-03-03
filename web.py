@@ -3,6 +3,7 @@ from flask_socketio import SocketIO
 import yfinance as yf
 import pandas as pd
 from datetime import datetime, timedelta
+import sqlite3
 from binance.client import Client
 from binance import ThreadedWebsocketManager
 from binance.enums import FuturesType
@@ -198,6 +199,242 @@ website_targets = [
 ping_time = {}
 futures = {}
 port_loading = False
+website_db_path = os.path.join(os.path.dirname(__file__), "logs", "website_monitor.db")
+
+
+def init_website_monitor_db():
+    conn = sqlite3.connect(website_db_path)
+    cur = conn.cursor()
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS website_checks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            url TEXT NOT NULL,
+            checked_at TEXT NOT NULL,
+            is_up INTEGER NOT NULL,
+            status_code INTEGER,
+            latency_ms INTEGER,
+            error TEXT
+        )
+        """
+    )
+    cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS website_incidents (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            url TEXT NOT NULL,
+            down_at TEXT NOT NULL,
+            up_at TEXT,
+            duration_sec INTEGER
+        )
+        """
+    )
+    conn.commit()
+    conn.close()
+
+
+def website_db_connect():
+    return sqlite3.connect(website_db_path)
+
+
+def log_website_check(url, checked_at, is_up, status_code, latency_ms, error):
+    conn = website_db_connect()
+    cur = conn.cursor()
+
+    cur.execute(
+        """
+        SELECT is_up
+        FROM website_checks
+        WHERE url = ?
+        ORDER BY id DESC
+        LIMIT 1
+        """,
+        (url,),
+    )
+    last_row = cur.fetchone()
+    last_is_up = bool(last_row[0]) if last_row is not None else None
+
+    cur.execute(
+        """
+        INSERT INTO website_checks (url, checked_at, is_up, status_code, latency_ms, error)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """,
+        (
+            url,
+            checked_at.strftime("%Y-%m-%d %H:%M:%S"),
+            1 if is_up else 0,
+            status_code,
+            latency_ms,
+            error,
+        ),
+    )
+
+    # Transition: UP -> DOWN, open incident
+    if last_is_up is True and not is_up:
+        cur.execute(
+            """
+            INSERT INTO website_incidents (url, down_at)
+            VALUES (?, ?)
+            """,
+            (url, checked_at.strftime("%Y-%m-%d %H:%M:%S")),
+        )
+
+    # Transition: DOWN -> UP, close latest open incident
+    if last_is_up is False and is_up:
+        cur.execute(
+            """
+            SELECT id, down_at
+            FROM website_incidents
+            WHERE url = ? AND up_at IS NULL
+            ORDER BY id DESC
+            LIMIT 1
+            """,
+            (url,),
+        )
+        incident = cur.fetchone()
+        if incident is not None:
+            incident_id, down_at_str = incident
+            down_at = datetime.strptime(down_at_str, "%Y-%m-%d %H:%M:%S")
+            duration_sec = int((checked_at - down_at).total_seconds())
+            cur.execute(
+                """
+                UPDATE website_incidents
+                SET up_at = ?, duration_sec = ?
+                WHERE id = ?
+                """,
+                (
+                    checked_at.strftime("%Y-%m-%d %H:%M:%S"),
+                    duration_sec,
+                    incident_id,
+                ),
+            )
+
+    conn.commit()
+    conn.close()
+
+
+def get_monthly_uptime_report(months=6):
+    now = datetime.now()
+    month_points = []
+    for i in range(months):
+        point = (now.replace(day=1) - timedelta(days=31 * i)).replace(day=1)
+        month_points.append(point)
+
+    month_points = sorted({p.strftime("%Y-%m"): p for p in month_points}.values())
+    month_keys = [p.strftime("%Y-%m") for p in month_points]
+
+    conn = website_db_connect()
+    cur = conn.cursor()
+
+    report = []
+    for url in website_targets:
+        month_stats = []
+        for month_key in month_keys:
+            cur.execute(
+                """
+                SELECT
+                    COUNT(*) AS total_count,
+                    SUM(CASE WHEN is_up = 1 THEN 1 ELSE 0 END) AS up_count
+                FROM website_checks
+                WHERE url = ? AND strftime('%Y-%m', checked_at) = ?
+                """,
+                (url, month_key),
+            )
+            total_count, up_count = cur.fetchone()
+            total_count = total_count or 0
+            up_count = up_count or 0
+            uptime_pct = round((up_count / total_count) * 100, 2) if total_count > 0 else None
+            month_stats.append(
+                {
+                    "month": month_key,
+                    "uptime_pct": uptime_pct,
+                    "checks": total_count,
+                }
+            )
+
+        report.append(
+            {
+                "url": url,
+                "months": month_stats,
+            }
+        )
+
+    cur.execute(
+        """
+        SELECT url, down_at, up_at, duration_sec
+        FROM website_incidents
+        ORDER BY down_at DESC
+        LIMIT 200
+        """
+    )
+    incidents = [
+        {
+            "url": r[0],
+            "down_at": r[1],
+            "up_at": r[2],
+            "duration_sec": r[3],
+        }
+        for r in cur.fetchall()
+    ]
+
+    conn.close()
+
+    return {
+        "months": month_keys,
+        "report": report,
+        "incidents": incidents,
+    }
+
+
+init_website_monitor_db()
+
+
+def run_website_checks(should_log=True):
+    results = []
+
+    for url in website_targets:
+        checked_at = datetime.now()
+        start = time.time()
+        status_code = None
+        error = None
+        is_up = False
+
+        try:
+            response = requests.get(
+                url,
+                timeout=8,
+                allow_redirects=True,
+                headers={"User-Agent": "mk-dashboard-monitor/1.0"},
+            )
+            status_code = response.status_code
+            is_up = status_code < 500
+        except Exception as e:
+            error = str(e)
+
+        latency_ms = int((time.time() - start) * 1000)
+
+        if should_log:
+            log_website_check(url, checked_at, is_up, status_code, latency_ms, error)
+
+        results.append({
+            "url": url,
+            "status_code": status_code,
+            "latency_ms": latency_ms,
+            "is_up": is_up,
+            "error": error,
+            "checked_at": checked_at.strftime("%Y-%m-%d %H:%M:%S"),
+        })
+
+    return results
+
+
+def website_monitor_loop():
+    while True:
+        try:
+            run_website_checks(should_log=True)
+        except Exception as e:
+            logger.error(f"Website monitor loop failed: {e}")
+        time.sleep(60)
 
 # List of tasks and their corresponding dates (in "YYYY-MM-DD" format)
 tasks_dates = [
@@ -664,37 +901,14 @@ def jenkins():
 
 @app.route("/website_status")
 def website_status():
-    results = []
-
-    for url in website_targets:
-        start = time.time()
-        status_code = None
-        error = None
-        is_up = False
-
-        try:
-            response = requests.get(
-                url,
-                timeout=8,
-                allow_redirects=True,
-                headers={"User-Agent": "mk-dashboard-monitor/1.0"},
-            )
-            status_code = response.status_code
-            is_up = status_code < 500
-        except Exception as e:
-            error = str(e)
-
-        latency_ms = int((time.time() - start) * 1000)
-        results.append({
-            "url": url,
-            "status_code": status_code,
-            "latency_ms": latency_ms,
-            "is_up": is_up,
-            "error": error,
-            "checked_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        })
-
+    results = run_website_checks(should_log=False)
     return json.dumps({"websites": results})
+
+
+@app.route("/website_report")
+def website_report():
+    report_data = get_monthly_uptime_report(months=6)
+    return render_template("website_report.html", report_data=report_data)
 
 @app.route("/abt_status")
 def abt_status():
@@ -757,6 +971,11 @@ if __name__ == "__main__":
     position_update_thread = Thread(target=position_update)
     position_update_thread.daemon = True
     position_update_thread.start()
+
+    # Start website monitor thread
+    website_monitor_thread = Thread(target=website_monitor_loop)
+    website_monitor_thread.daemon = True
+    website_monitor_thread.start()
 
     logger.info("Running the socket server...")
     # Open chrome browser when the server starts 5 seconds later
