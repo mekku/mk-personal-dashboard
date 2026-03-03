@@ -520,7 +520,7 @@
                             headers: { 'Content-Type': 'application/json' },
                         });
                         const data = await response.json();
-                        const jobs = data?.jobs || [];
+                        const jobs = (data && data.jobs) ? data.jobs : [];
                         const prev = prevJenkinsColorsRef.current;
                         const anyCompleted = jobs.some(
                             (job) => (prev[job.name] || '').endsWith('_anime') && job.color === 'blue'
