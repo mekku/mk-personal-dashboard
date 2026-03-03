@@ -366,27 +366,44 @@ def get_portfolio_positions(binance, symbol=None):
         return []
 
 def get_orders(binance, symbol="BTCUSDT"):
+    orders = []
     try:
         if symbol == "BTCUSD":
             symbol = "BTCUSD_PERP"
             
         orders = binance.fetchOpenOrders(symbol)
-
+        try:
+            conditional_orders = binance.fetchOpenOrders(
+                symbol, params={"trigger": True}
+            )
+            existing_ids = {order["id"] for order in orders}
+            for algo_order in conditional_orders:
+                if algo_order["id"] not in existing_ids:
+                    orders.append(algo_order)
+                    existing_ids.add(algo_order["id"])
+        except Exception as e:
+            print(f"Error while fetching binance conditional orders: {e}")
         # Sort orders by trigger price
         orders = sorted(orders, key=lambda x: x["triggerPrice"], reverse=False)
-        
-        for o in orders:
-            if "stop" in o["type"]:
-                o["type"] = "SL"
-            elif "take" in o["type"]:
-                o["type"] = "TP"
+        print(orders)
+        print(f"Found {len(orders)} orders")
 
+        for o in orders:
+            orderInfoType = o["info"]["orderType"] if "info" in o and "orderType" in o["info"] and o["info"]["orderType"] is not None else ""
+            orderType = o["type"] if "type" in o and o["type"] is not None else ""
+            print(orderInfoType)
+            print(orderType)
+            if "STOP" in orderInfoType or "stop" in orderType:
+                o["type"] = "SL"
+            elif "TAKE" in orderInfoType or "take" in orderType:
+                o["type"] = "TP"
         # logger.error(orders)
         return orders
     except Exception as e:
+        print(e)
         logger.error(f"Failed to fetch orders: Code {e}")
         
-        return []
+        return orders 
 
 ####################################################################
 
@@ -450,7 +467,7 @@ def get_info(api_key, api_secret, symbols, name):
                 },
                 'adjustForTimeDifference': False,
                 'enableRateLimit': False,
-                'verbose': True
+                'verbose': False
             })
             
         else:
@@ -462,7 +479,7 @@ def get_info(api_key, api_secret, symbols, name):
                 },
                 'adjustForTimeDifference': False,
                 'enableRateLimit': False,
-                'verbose': True
+                'verbose': False
             })
         bot_clients[name] = binance
     else:
@@ -596,10 +613,13 @@ def jenkins():
         "Content-Type": "application/json"
     }
     response = requests.get(url, headers=headers)
-    data = response.json()
+    try:
+        data = response.json()
     
-    # Return as json
-    return json.dumps(data)
+        # Return as json
+        return json.dumps(data)
+    except:
+        return []
 
 @app.route("/homeassistant")
 def homeassistant():
@@ -614,7 +634,7 @@ def homeassistant():
         response = requests.get(url, headers=headers, timeout=10)
         if response.status_code == 200:
             data = response.json()
-            print (data)
+            #print (data)
             # Find the specific sensor in the list of entities
             target_sensor = None
             for entity in data:
